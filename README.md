@@ -125,10 +125,10 @@ We now illustrate the calculation for **ACB**.
 
 #### 2. **TradingType**, **Exposure** and **TradingWeight**: 
 
-| TradingType | Exposure | TradingWeight | BookSize * Exposure * TradingWeight        |
-| ----------- |----------| ------------- |--------------------------------------------|
-| Daily       | 70%      | 80%           | 10,000,000,000 * 0.7 * 0.8 = 5,600,000,000 |
-| Intraday    | 100%     | 20%           | 10,000,000,000 * 1.0 * 0.2 = 2,000,000,000 |
+| TradingType | Exposure | TradingWeight <br/>(Total 100%) | BookSize * Exposure * TradingWeight        |
+| ----------- |----------|----------------------------|--------------------------------------------|
+| Daily       | 70%      | 80%                        | 10,000,000,000 * 0.7 * 0.8 = 5,600,000,000 |
+| Intraday    | 100%     | 20%                        | 10,000,000,000 * 1.0 * 0.2 = 2,000,000,000 |
 
 #### 3. Strategy Signal Allocation (after combining multiple strategies):
 
