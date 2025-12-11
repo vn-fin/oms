@@ -75,7 +75,7 @@
   * Percentage of book size allocated to a position (e.g., 10%, 70%).
   * Used in risk and position sizing.
 
-* **Trading Type**: Defines the execution characteristics of the book/strategy
+* **TradingType**: Defines the execution characteristics of the book/strategy
   * **Daily**: low frequency
   * **Intraday**: medium frequency
   * **HFT**: high frequency
@@ -106,3 +106,47 @@ StrategyCombinedBookSize =
   (TradingWeight_Intraday * BookSize_Intraday * Exposure_Intraday * StrategyWeight_Intraday) +
   (TradingWeight_HFT      * BookSize_HFT      * Exposure_HFT      * StrategyWeight_HFT)
 ```
+
+## Examples
+### Fundamental Trading
+1. **MaxBookSize**: 50.000.000.000
+And we allocate for 4 stocks: **ACB**, **HPG**, **FPT** and **VIC** with the following weights:
+
+| Stock     | Weight | Allocated Amount |
+| --------- | ------ | ---------------- |
+| ACB       | 20%    | 10,000,000,000   |
+| HPG       | 20%    | 10,000,000,000   |
+| FPT       | 20%    | 10,000,000,000   |
+| VIC       | 40%    | 20,000,000,000   |
+| **Total** | 100%   | 50,000,000,000   |
+
+We now illustrate the calculation for **ACB**.
+
+2. **TradingType**, **Exposure** and **TradingWeight**: 
+
+| TradingType | Exposure | TradingWeight | BookSize * Exposure * TradingWeight        |
+| ----------- | -------- | ------------- | ------------------------------------------ |
+| Daily       | 100%     | 80%           | 10,000,000,000 * 1.0 * 0.8 = 8,000,000,000 |
+| Intraday    | 100%     | 20%           | 10,000,000,000 * 1.0 * 0.2 = 2,000,000,000 |
+
+3. Strategy Signal Allocation (after combining multiple strategies):
+
+| TradingType | Signal | Allocated Amount                    |
+| ----------- | ------ | ----------------------------------- |
+| Daily       | 60%    | 8,000,000,000 * 0.6 = 4,800,000,000 |
+| Intraday    | 40%    | 2,000,000,000 * 0.4 = 800,000,000   |
+
+4. Manual Offset: 
+
+* Offset: 1.000.000.000
+
+then, the current holding position: 
+
+* Current: 4.800.000.000 + 720.000.000 + 1.000.000.000 = 6.520.000.000
+
+5. Final Position
+The current price of **ACB** is 24.150 VND (as of 2025-12-11 11:20:00), so the target position is: 6.520.000.000 / 24.150 ~ **269.900** shares.
+
+
+### Future trades:
+Similar calculation applies, but may include HFT trading type
