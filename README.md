@@ -109,7 +109,7 @@ StrategyCombinedBookSize =
 
 ## Examples
 ### Fundamental Trading
-1. **MaxBookSize**: 50.000.000.000
+#### 1. **MaxBookSize**: 50.000.000.000
 
 And we allocate for 4 stocks: **ACB**, **HPG**, **FPT** and **VIC** with the following weights:
 
@@ -123,21 +123,21 @@ And we allocate for 4 stocks: **ACB**, **HPG**, **FPT** and **VIC** with the fol
 
 We now illustrate the calculation for **ACB**.
 
-2. **TradingType**, **Exposure** and **TradingWeight**: 
+#### 2. **TradingType**, **Exposure** and **TradingWeight**: 
 
 | TradingType | Exposure | TradingWeight | BookSize * Exposure * TradingWeight        |
 | ----------- |----------| ------------- |--------------------------------------------|
 | Daily       | 70%      | 80%           | 10,000,000,000 * 0.7 * 0.8 = 5,600,000,000 |
 | Intraday    | 100%     | 20%           | 10,000,000,000 * 1.0 * 0.2 = 2,000,000,000 |
 
-3. Strategy Signal Allocation (after combining multiple strategies):
+#### 3. Strategy Signal Allocation (after combining multiple strategies):
 
 | TradingType | Signal | Allocated Amount                    |
 | ----------- |--------|-------------------------------------|
 | Daily       | 60%    | 5,600,000,000 * 0.6 = 3,360,000,000 |
 | Intraday    | 70%    | 2,000,000,000 * 0.7 = 1,400,000,000 |
 
-4. Manual Trades (Offset)
+#### 4. Manual Trades (Offset)
 
 * Offset: 1,000,000,000
 
@@ -145,9 +145,8 @@ then, the current holding position:
 
 * Current: 3,360,000,000 + 1,400,000,000 + 1,000,000,000 = 5,760,000,000
 
-5. Final Position
+#### 5. Final Position
 - The current price of **ACB** is 24,150 VND (as of 2025-12-11 11:20:00), so the target position is: 6,520,000,000 / 24,150 ~ **238,500** shares.
-
 
 ### Future trades:
 - Similar calculation applies, but may include HFT trading type and allow short positions (negative weights).
