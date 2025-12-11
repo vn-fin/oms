@@ -75,10 +75,39 @@
   * Percentage of book size allocated to a position (e.g., 10%, 70%).
   * Used in risk and position sizing.
 
+* **Trading Type**: Defines the execution characteristics of the book/strategy
+  * **Daily**: low frequency
+  * **Intraday**: medium frequency
+  * **HFT**: high frequency
+
+* **TradingWeight**: Defines how the total MaxBookSize is split across trading types, default values:
+  * **Daily**: 100%
+  * **Intraday**: 0%
+  * **HFT**: 0%
+
 * **StrategyWeight**
   * Weight used when combining multiple strategy signals to derive a unified target position.
   * Higher weight means higher influence on final decision.
 
 * **Offset**
+
   * Adjustment to the target position caused by manual trades.
-  * Final position = StrategyTarget + Offset.
+  * Offset is applied only to **Daily trading type**.
+  * Final position is calculated as:
+
+[
+\text{FinalPosition} = \text{StrategyCombinedBookSize} + \text{Offset}
+]
+
+where the **StrategyCombinedBookSize** is the sum across trading types:
+
+[
+\text{StrategyCombinedBookSize} = \sum_{i \in {\text{Daily}, \text{Intraday}, \text{HFT}}} \big( \text{TradingWeight}_i \times \text{BookSize}_i \times \text{Exposure}_i \times \text{StrategyWeight}_i \big)
+]
+
+* Here:
+
+  * ( \text{TradingWeight}_i ) = proportion of MaxBookSize allocated to trading type (i)
+  * ( \text{BookSize}_i ) = MaxBookSize available for trading type (i)
+  * ( \text{Exposure}_i ) = fraction of BookSize allocated to the symbol in trading type (i)
+  * ( \text{StrategyWeight}_i ) = weight of the strategy for trading type (i)
