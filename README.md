@@ -95,19 +95,14 @@
   * Offset is applied only to **Daily trading type**.
   * Final position is calculated as:
 
-[
-\text{FinalPosition} = \text{StrategyCombinedBookSize} + \text{Offset}
-]
-
+```
+FinalPosition = StrategyCombinedBookSize + Offset
+```
 where the **StrategyCombinedBookSize** is the sum across trading types:
 
-[
-\text{StrategyCombinedBookSize} = \sum_{i \in {\text{Daily}, \text{Intraday}, \text{HFT}}} \big( \text{TradingWeight}_i \times \text{BookSize}_i \times \text{Exposure}_i \times \text{StrategyWeight}_i \big)
-]
-
-* Here:
-
-  * ( \text{TradingWeight}_i ) = proportion of MaxBookSize allocated to trading type (i)
-  * ( \text{BookSize}_i ) = MaxBookSize available for trading type (i)
-  * ( \text{Exposure}_i ) = fraction of BookSize allocated to the symbol in trading type (i)
-  * ( \text{StrategyWeight}_i ) = weight of the strategy for trading type (i)
+```
+StrategyCombinedBookSize = 
+  (TradingWeight_Daily   * BookSize_Daily   * Exposure_Daily   * StrategyWeight_Daily) +
+  (TradingWeight_Intraday * BookSize_Intraday * Exposure_Intraday * StrategyWeight_Intraday) +
+  (TradingWeight_HFT      * BookSize_HFT      * Exposure_HFT      * StrategyWeight_HFT)
+```
