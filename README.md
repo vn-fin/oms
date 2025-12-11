@@ -92,7 +92,7 @@
 * **Offset**
 
   * Adjustment to the target position caused by manual trades.
-  * Offset can be considered as **Daily trading type**.
+  * Offset can be considered as **Intraday trading type**.
   * Final position is calculated as:
 
 ```
