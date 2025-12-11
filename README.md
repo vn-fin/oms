@@ -110,6 +110,7 @@ StrategyCombinedBookSize =
 ## Examples
 ### Fundamental Trading
 1. **MaxBookSize**: 50.000.000.000
+
 And we allocate for 4 stocks: **ACB**, **HPG**, **FPT** and **VIC** with the following weights:
 
 | Stock     | Weight | Allocated Amount |
