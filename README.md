@@ -6,7 +6,7 @@
 #### **1. Basket-Based Trading**
 * Users can create custom stock baskets with predefined target positions or weights per stock.
 * Support executing a basket **multiple times** (repeatable basket trades).
-* Allow Buy/Sell using Bid / Ask / Mid price selection.
+* Allow **Buy**/**Sell** using **Bid**/**Ask**/**Mid** price selection.
 * Support **Fill All** (convert all legs into market orders) or **Cancel All** actions.
 * Display real-time futures on the same dashboard and allow selecting future prices for hedging.
 
@@ -92,7 +92,7 @@
 * **Offset**
 
   * Adjustment to the target position caused by manual trades.
-  * Offset is applied only to **Daily trading type**.
+  * Offset can be considered as **Daily trading type**.
   * Final position is calculated as:
 
 ```
