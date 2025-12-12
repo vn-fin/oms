@@ -31,24 +31,39 @@ C. Tracking
    - Identity: The system must record **Who** placed the manual order (User ID).
    - Timestamp: The system must record **When** the order was placed (Exact Timestamp).
 ## Database
-┌─────────────────────────┐         ┌──────────────────────┐
-│   login_credentials     │         │     user_orders      │
-├─────────────────────────┤         ├──────────────────────┤
-│ 🔑 id (PK)              │ 1     N │ 🔑 id (PK)           │
-│    user_id              │─────────│ 🔗 credential_id (FK)│
-│    display_name         │         │    user_id           │
-│    account_type         │         │    symbol            │
-│    init_cash            │         │    symbol_type       │
-│    updated              │         │    side              │
-│    balance              │         │    order_type        │
-│    role                 │         │    order_price       │
-└─────────────────────────┘         │    quantity          │
-                                    │    filled_qty        │
-                                    │    remaining_qty     │
-                                    │    status            │
-                                    │    created_at        │
-                                    │    updated_at        │
-                                    └──────────────────────┘
+## Database Schema
+
+### login_credentials
+| Field | Type | Description |
+|-------|------|-------------|
+| 🔑 id | PK | Primary Key |
+| user_id | string | User identifier |
+| display_name | string | Display name |
+| account_type | string | Account type |
+| init_cash | decimal | Initial cash |
+| updated | timestamp | Last updated |
+| balance | decimal | Current balance |
+| role | string | User role |
+
+### user_orders
+| Field | Type | Description |
+|-------|------|-------------|
+| 🔑 id | PK | Primary Key |
+| 🔗 credential_id | FK | Foreign Key → login_credentials.id |
+| user_id | string | User identifier |
+| symbol | string | Trading symbol |
+| symbol_type | string | Symbol type |
+| side | string | Buy/Sell |
+| order_type | string | Order type |
+| order_price | decimal | Order price |
+| quantity | integer | Order quantity |
+| filled_qty | integer | Filled quantity |
+| remaining_qty | integer | Remaining quantity |
+| status | string | Order status |
+| created_at | timestamp | Creation time |
+| updated_at | timestamp | Last update |
+
+**Relationship:** login_credentials (1) ─── (N) user_orders
 ## APIs
 
 **prefix**: `/paper-trading/v1/`
