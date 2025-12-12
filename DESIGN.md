@@ -50,6 +50,7 @@ C. Tracking
 |-------|------|-------------|
 | 🔑 id | PK | Primary Key |
 | 🔗 credential_id | FK | Foreign Key → login_credentials.id |
+|🔗 basket_id| FK | Foreign Key → basket.id |
 | user_id | string | User identifier |
 | symbol | string | Trading symbol |
 | symbol_type | string | Symbol type |
@@ -63,7 +64,17 @@ C. Tracking
 | created_at | timestamp | Creation time |
 | updated_at | timestamp | Last update |
 
+### users.basket
+
+| Field            | Type   | Description                              |
+|------------------|--------|------------------------------------------|
+| 🔑 id            | PK     | Primary Key                              |
+| basket_name      | string | Tên của basket                           |
+| 🔗 credential_id | FK     | Foreign Key → login_credentials.id       |
+| user_id          | string | User identifier                          |
+
 **Relationship:** login_credentials (1) ─── (N) user_orders
+                  login_credentials (1) ___ (N) basket
 ## APIs
 
 **prefix**: `/paper-trading/v1/`
@@ -74,8 +85,25 @@ All APIs require headers:
 - `Authorization`: Bearer token / user identifier (get user_id trong access token)
 
 ---
+### 1. Basket Management
+### Create basket
+```
+POST /baskets
 
-### 1. Order Management
+Request:
+{
+  "credentialId": "xxx",
+  "basketName": "Top30",
+}
+
+Response:
+{
+  "message": "Basket created successfully",
+  "basket_id": "8d4f6b8c-5b39-4d2a-8c39-1c7e5b04eabc",
+  "status": "Active"    // Active hoặc Failed
+}
+```
+### 2. Order Management
 
 #### Create Order
 ```
@@ -98,34 +126,6 @@ Request:
   "status": "Pending"         // "Pending" or "Rejected"
 }
 ```
-Validation Logic (Trader Role Only):
-1. Limit Order (orderType = "L"):
-   - Check: quantity × price < capital_limit
-   - Example: 1000 × 24.5 = 24,500,000
-     → Status = "Pending" if capital_limit >= 24,500,000
-     → Status = "Rejected" if capital_limit < 24,500,000
-
-2. Market Order (orderType = "M"):
-   - Simulate matching against current orderbook
-   - Calculate total_cost from matched prices
-   - Check: total_cost < capital_limit
-   - Example (Buy 400 shares):
-     Orderbook: [100@24.5, 200@24.6, 500@24.7]
-     Match: 100×24.5 + 200×24.6 + 100×24.7 = 9,790,000
-   - Check: total_cost < capital_limit
-
-
-3. ATO/ATC Orders (orderType = "ATO" or "ATC"):
-   - ATO: Use open_price from snapshot
-   - ATC: Use reference_price (floor price) from snapshot
-   - Calculate: total_cost = quantity × price
-   - Check: total_cost < capital_limit
-
-4. Admin Role:
-   - No capital_limit validation
-   - Status always = "Pending"
-
-Note: Orders with Status = "Rejected" will not be processed by match engine.
 
 #### Get Order by ID
 
@@ -204,3 +204,4 @@ Response (200):
   }
 ]
 ```
+
