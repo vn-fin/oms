@@ -69,8 +69,8 @@ C. Tracking
 | Field            | Type   | Description                              |
 |------------------|--------|------------------------------------------|
 | 🔑 id            | PK     | Primary Key                              |
-| basket_name      | string | Tên của basket                           |
 | 🔗 credential_id | FK     | Foreign Key → login_credentials.id       |
+| basket_name      | string | Tên của basket                           |
 | user_id          | string | User identifier                          |
 
 **Relationship:** login_credentials (1) ─── (N) user_orders
