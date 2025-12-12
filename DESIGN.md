@@ -127,6 +127,20 @@ Request:
 }
 ```
 
+1. Limit Order (orderType = "L"):
+   - Check: quantity × price < capital_limit
+   - If quantity × price < capital_limit:
+     - Status = "Pending"
+   - If quantity × price >= capital_limit:
+     - Status = "Rejected"
+     - Response: "Exceeded limit"
+   - Example: 1000 × 24.5 = 24,500,000
+   
+2. Admin Role:
+   - No capital_limit validation
+   - Status always = "Pending"
+**Note:**: - Orders with Status = "Rejected" will not be processed by match engine.
+           - OrderType "M", "ATO", "ATC" are processed after the match engine.
 #### Get Order by ID
 
 ```
