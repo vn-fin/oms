@@ -126,20 +126,7 @@ Validation Logic (Trader Role Only):
    - Status always = "Pending"
 
 Note: Orders with Status = "Rejected" will not be processed by match engine.
-```
-{
-  "message": "Order created successfully",
-  "order_id": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "Pending"         // "Pending" hoặc "Rejected"
-}
-Error Response (400):
-{
-  "error": "exceeds capital limit",
-  "required_capital": 24500000,
-  "capital_limit": 20000000,
-  "available": 20000000
-}
-```
+
 #### Get Order by ID
 
 ```
