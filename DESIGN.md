@@ -31,7 +31,24 @@ C. Tracking
    - Identity: The system must record **Who** placed the manual order (User ID).
    - Timestamp: The system must record **When** the order was placed (Exact Timestamp).
 ## Database
-
+┌─────────────────────────┐         ┌──────────────────────┐
+│   login_credentials     │         │     user_orders      │
+├─────────────────────────┤         ├──────────────────────┤
+│ 🔑 id (PK)              │ 1     N │ 🔑 id (PK)           │
+│    user_id              │─────────│ 🔗 credential_id (FK)│
+│    display_name         │         │    user_id           │
+│    account_type         │         │    symbol            │
+│    init_cash            │         │    symbol_type       │
+│    updated              │         │    side              │
+│    balance              │         │    order_type        │
+│    role                 │         │    order_price       │
+└─────────────────────────┘         │    quantity          │
+                                    │    filled_qty        │
+                                    │    remaining_qty     │
+                                    │    status            │
+                                    │    created_at        │
+                                    │    updated_at        │
+                                    └──────────────────────┘
 ## APIs
 
 **prefix**: `/paper-trading/v1/`
