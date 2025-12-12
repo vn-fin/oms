@@ -92,14 +92,56 @@ Request:
   "symbolType": "VnStock"     // VnStock, VnFuture
 }
 
-Response (201):
 {
   "message": "Order created successfully",
-  "order_id": "550e8400-e29b-41d4-a716-446655440000"
+  "order_id": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "Pending"         // "Pending" or "Rejected"
 }
 ```
+Validation Logic (Trader Role Only):
+1. Limit Order (orderType = "L"):
+   - Check: quantity × price < capital_limit
+   - Example: 1000 × 24.5 = 24,500,000
+     → Status = "Pending" if capital_limit >= 24,500,000
+     → Status = "Rejected" if capital_limit < 24,500,000
 
+2. Market Order (orderType = "M"):
+   - Simulate matching against current orderbook
+   - Calculate total_cost from matched prices
+   - Check: total_cost < capital_limit
+   - Example (Buy 400 shares):
+     Orderbook: [100@24.5, 200@24.6, 500@24.7]
+     Match: 100×24.5 + 200×24.6 + 100×24.7 = 9,790,000
+   - Check: total_cost < capital_limit
+
+
+3. ATO/ATC Orders (orderType = "ATO" or "ATC"):
+   - ATO: Use open_price from snapshot
+   - ATC: Use reference_price (floor price) from snapshot
+   - Calculate: total_cost = quantity × price
+   - Check: total_cost < capital_limit
+
+4. Admin Role:
+   - No capital_limit validation
+   - Status always = "Pending"
+
+Note: Orders with Status = "Rejected" will not be processed by match engine.
+```
+{
+  "message": "Order created successfully",
+  "order_id": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "Pending"         // "Pending" hoặc "Rejected"
+}
+Error Response (400):
+{
+  "error": "exceeds capital limit",
+  "required_capital": 24500000,
+  "capital_limit": 20000000,
+  "available": 20000000
+}
+```
 #### Get Order by ID
+
 ```
 GET /orders/{orderId}?credentialId={credentialId}
 
