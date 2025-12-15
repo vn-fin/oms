@@ -21,7 +21,6 @@ type BasketCreateRequest struct {
 // BasketCreate
 // @Summary Create basket
 // @Description Create a new basket.
-// @Tags baskets
 // @Accept json
 // @Produce json
 // @Param request body BasketCreateRequest true "Basket create payload"
