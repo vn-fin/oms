@@ -1,0 +1,15 @@
+package handlers
+
+import "github.com/gofiber/fiber/v2"
+
+// BasketFillAll
+// @Summary
+// @Description
+// @Tags
+// @Router /oms/v1/baskets/:basket_id/fill [post]
+func BasketFillAll(c *fiber.Ctx) error {
+	// Send a simple JSON response
+	return c.JSON(fiber.Map{
+		"message": "Welcome to OMS API",
+	})
+}
