@@ -29,9 +29,6 @@ func BasketDelete(c *fiber.Ctx) error {
 
 	// Get userID from context (set by AuthMiddleware)
 	userID := api.GetUserID(c)
-	if userID == "" {
-		return api.Response().Unauthorized("user not authenticated").Send(c)
-	}
 
 	now := time.Now().UTC()
 

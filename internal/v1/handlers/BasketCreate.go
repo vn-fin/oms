@@ -13,9 +13,10 @@ import (
 )
 
 type BasketCreateRequest struct {
-	Name        string              `json:"name"`
-	Description string              `json:"description"`
-	Info        []models.BasketInfo `json:"info"`
+	Name        string                     `json:"name"`
+	Description string                     `json:"description"`
+	Info        []models.BasketInfo        `json:"info"`
+	HedgeConfig []models.BasketHedgeConfig `json:"hedge_config"`
 }
 
 // BasketCreate
@@ -46,11 +47,8 @@ func BasketCreate(c *fiber.Ctx) error {
 		return api.Response().BadRequest("info is required").Send(c)
 	}
 
-	// Get userID from context (set by AuthMiddleware)
+	// Get userID from context (set 1by AuthMiddleware)
 	userID := api.GetUserID(c)
-	if userID == "" {
-		return api.Response().Unauthorized("user not authenticated").Send(c)
-	}
 
 	now := time.Now().UTC()
 	basket := models.Basket{
@@ -58,6 +56,7 @@ func BasketCreate(c *fiber.Ctx) error {
 		Name:        req.Name,
 		Description: req.Description,
 		Info:        req.Info,
+		HedgeConfig: req.HedgeConfig,
 		CreatedBy:   userID,
 		UpdatedBy:   userID,
 		CreatedAt:   now,
@@ -67,14 +66,15 @@ func BasketCreate(c *fiber.Ctx) error {
 
 	// Insert into database using raw SQL query
 	query := `
-		INSERT INTO execution.baskets (id, name, description, info, created_by, updated_by, created_at, updated_at, status)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO execution.baskets (id, name, description, info,hedge_config, created_by, updated_by, created_at, updated_at, status)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)
 	`
 	_, err := db.Postgres.Exec(query,
 		basket.ID,
 		basket.Name,
 		basket.Description,
 		basket.Info,
+		basket.HedgeConfig,
 		basket.CreatedBy,
 		basket.UpdatedBy,
 		basket.CreatedAt,

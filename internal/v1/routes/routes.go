@@ -26,5 +26,10 @@ func SetupRoutes(app *fiber.App) {
 		api.Delete("/baskets/:id", authMiddleware, handlers.BasketDelete)
 		api.Post("/baskets/:id/cancel", authMiddleware, handlers.BasketCancel)
 
+		// basket execute sessions
+		api.Post("/baskets/:basket_id/execute", authMiddleware, handlers.BasketExecute)
+		api.Get("/baskets/:basket_id/execute-sessions", authMiddleware, handlers.BasketExecuteSessionsList)
+		api.Post("/baskets/:basket_id/executions/:execution_id/cancel", authMiddleware, handlers.BasketExecutionCancel)
+
 	}
 }
