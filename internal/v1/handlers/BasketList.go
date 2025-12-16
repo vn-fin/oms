@@ -27,7 +27,7 @@ func BasketList(c *fiber.Ctx) error {
 	// Query all baskets
 	var baskets []models.Basket
 	query := `
-		SELECT id, name, description, info, created_by, updated_by, created_at, updated_at, status
+		SELECT id, name, description, info, hedge_config, created_by, updated_by, created_at, updated_at, status
 		FROM execution.baskets
 		ORDER BY created_at DESC
 	`

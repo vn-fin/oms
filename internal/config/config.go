@@ -40,6 +40,17 @@ var AdminEmails string
 const RedisCachePrefix = "api.oms.cache:"
 const DefaultCacheDuration = 5 * time.Second
 
+// Kafka Config
+var (
+	KafkaServers         string
+	KafkaConsumerGroup   = "oms.orderbook.consumer"
+	KafkaMarketDataTopic = "market.data.transformed"
+	KafkaMessageSource   = "dnse"
+)
+
+// Message types
+const MessageTypeOrderBook = "TP"
+
 func InitConfig() error {
 	var err error
 
@@ -89,6 +100,12 @@ func InitConfig() error {
 
 	// Admin email
 	AdminEmails = os.Getenv("ADMIN_EMAIL")
+
+	// KAFKA
+	KafkaServers = os.Getenv("KAFKA_SERVERS")
+	if KafkaServers == "" {
+		log.Warn().Msg("KAFKA_SERVERS not set, Kafka consumer will not be available")
+	}
 
 	return nil
 }
