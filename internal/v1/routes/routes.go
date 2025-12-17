@@ -31,5 +31,14 @@ func SetupRoutes(app *fiber.App) {
 		api.Get("/baskets/:basket_id/execute-sessions", authMiddleware, handlers.BasketExecuteSessionsList)
 		api.Post("/baskets/:basket_id/executions/:execution_id/cancel", authMiddleware, handlers.BasketExecutionCancel)
 
+		// credentials
+		api.Post("/credentials", authMiddleware, handlers.CredentialCreate)
+		api.Put("/credentials/:credential_id", authMiddleware, handlers.CredentialUpdate)
+		api.Delete("/credentials/:credential_id", authMiddleware, handlers.CredentialDelete)
+
+		// credential groups
+		api.Post("/credential-groups", authMiddleware, handlers.CredentialGroupCreate)
+		api.Post("/credential-groups/add-credential", authMiddleware, handlers.CredentialGroupAddCredential)
+
 	}
 }

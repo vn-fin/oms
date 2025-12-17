@@ -5,8 +5,6 @@ import (
 	pb "github.com/vn-fin/xpb/xpb"
 )
 
-// GetUserID extracts the user ID from the fiber context
-// This should be used in handlers that are protected by AuthMiddleware
 func GetUserID(c *fiber.Ctx) string {
 	userID := c.Locals("userId")
 	if userID == nil {
@@ -18,15 +16,13 @@ func GetUserID(c *fiber.Ctx) string {
 	return ""
 }
 
-// GetUserInfo extracts the full user info from the fiber context
-// This should be used in handlers that are protected by AuthMiddleware
-func GetUserInfo(c *fiber.Ctx) *pb.UserInfo {
+func GetUserEmail(c *fiber.Ctx) string {
 	userInfo := c.Locals("userInfo")
 	if userInfo == nil {
-		return nil
+		return ""
 	}
 	if info, ok := userInfo.(*pb.UserInfo); ok {
-		return info
+		return info.Email
 	}
-	return nil
+	return ""
 }
