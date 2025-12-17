@@ -10,7 +10,7 @@ import (
 // BasketDetail gets a basket by ID
 // @Summary Get basket detail
 // @Description Get a basket by ID
-// @Tags baskets
+// @Tags Basket
 // @Produce json
 // @Param id path string true "Basket ID"
 // @Success 200 {object} models.DefaultResponseModel

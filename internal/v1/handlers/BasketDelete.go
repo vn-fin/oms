@@ -12,7 +12,7 @@ import (
 // BasketDelete soft deletes a basket by ID
 // @Summary Delete basket
 // @Description Soft delete a basket by updating status to removed
-// @Tags baskets
+// @Tags Basket
 // @Produce json
 // @Param id path string true "Basket ID"
 // @Success 200 {object} models.DefaultResponseModel

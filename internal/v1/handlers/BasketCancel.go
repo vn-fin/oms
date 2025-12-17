@@ -12,6 +12,7 @@ import (
 // BasketExecutionCancel
 // @Summary Cancel basket execution session
 // @Description Cancel a specific execution session by setting status to canceled
+// @Tags Execution
 // @Accept json
 // @Produce json
 // @Param basket_id path string true "Basket ID"

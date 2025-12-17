@@ -14,13 +14,16 @@ import (
 )
 
 type CredentialGroupRequest struct {
-	Name  string `json:"group_name"`
-	Email string `json:"email"`
+	CredentialID string  `json:"credential_id"`
+	Name         string  `json:"group_name"`
+	Email        string  `json:"email"`
+	CashLimit    float64 `json:"cash_limit"`
 }
 
 // CredentialGroupCreate
 // @Summary Create credential group
 // @Description Create a new credential group (Admin only)
+// @Tags Admin
 // @Accept json
 // @Produce json
 // @Param request body CredentialGroupRequest true "create credential group payload"
@@ -63,11 +66,21 @@ func CredentialGroupCreate(c *fiber.Ctx) error {
 		UpdatedAt: now,
 		Status:    typing.StatusActive,
 	}
-
+	credentialGroupDetail := models.CredentialGroupDetails{
+		ID:                uuid.NewString(),
+		CredentialID:      req.CredentialID,
+		CredentialGroupID: credentialGroup.ID,
+		CashLimit:         req.CashLimit,
+		UpdatedAt:         now,
+		Status:            typing.StatusActive,
+	}
 	// Insert into database
 	query := `
 		INSERT INTO users.credential_groups (id,name,user_id, created_at, updated_at, status)
-		VALUES (?, ?, ?, ?,?, ?)
+		VALUES (?, ?, ?, ?,?, ?);
+		
+		INSERT INTO users.login_credential_group_details (id, credential_id,credential_group_id,cash_limit, updated_at, status)
+		VALUES (?,?,?,?,?,?);
 	`
 	_, err = db.Postgres.Exec(query,
 		credentialGroup.ID,
@@ -76,7 +89,14 @@ func CredentialGroupCreate(c *fiber.Ctx) error {
 		credentialGroup.CreatedAt,
 		credentialGroup.UpdatedAt,
 		credentialGroup.Status,
+		credentialGroupDetail.ID,
+		credentialGroupDetail.CredentialID,
+		credentialGroupDetail.CredentialGroupID,
+		credentialGroupDetail.CashLimit,
+		credentialGroupDetail.UpdatedAt,
+		credentialGroupDetail.Status,
 	)
+
 	if err != nil {
 		return api.Response().InternalError(err).Send(c)
 	}

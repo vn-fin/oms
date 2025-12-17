@@ -17,6 +17,7 @@ import (
 // BasketExecute
 // @Summary Execute basket
 // @Description Execute a basket with specified parameters
+// @Tags Execution
 // @Accept json
 // @Produce json
 // @Param basket_id path string true "Basket ID"

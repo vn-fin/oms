@@ -20,6 +20,7 @@ type CredentialUpdateRequest struct {
 // CredentialUpdate
 // @Summary Update login credential
 // @Description Update an existing login credential (Admin only)
+// @Tags Admin
 // @Accept json
 // @Produce json
 // @Param credential_id path string true "Credential ID"

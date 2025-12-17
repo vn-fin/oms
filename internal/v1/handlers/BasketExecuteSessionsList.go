@@ -12,6 +12,7 @@ import (
 // BasketExecuteSessionsList
 // @Summary List basket execute sessions
 // @Description Get all execute sessions for a specific basket
+// @Tags Execution
 // @Accept json
 // @Produce json
 // @Param basket_id path string true "Basket ID"

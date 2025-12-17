@@ -14,7 +14,7 @@ import (
 // CredentialDelete soft deletes a credential by ID
 // @Summary Delete credential
 // @Description Soft delete a credential by updating status to disabled (Admin only)
-// @Tags credentials
+// @Tags Admin
 // @Produce json
 // @Param credential_id path string true "Credential ID"
 // @Success 200 {object} models.DefaultResponseModel

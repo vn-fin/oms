@@ -10,7 +10,7 @@ import (
 // BasketList gets all baskets
 // @Summary Get all baskets
 // @Description Get all baskets from database
-// @Tags baskets
+// @Tags Basket
 // @Produce json
 // @Success 200 {object} models.DefaultResponseModel
 // @Failure 401 {object} models.DefaultResponseModel

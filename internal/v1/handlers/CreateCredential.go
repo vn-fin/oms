@@ -22,6 +22,7 @@ type CredentialCreateRequest struct {
 // CredentialCreate
 // @Summary Create login credential
 // @Description Create a new login credential (Admin only)
+// @Tags Admin
 // @Accept json
 // @Produce json
 // @Param request body CredentialCreateRequest true "Credential create payload"

@@ -10,7 +10,7 @@ import (
 // GetListGroupByUserID gets all credential groups for a specific user
 // @Summary Get credential groups by user ID
 // @Description Get all credential groups belonging to the authenticated user
-// @Tags credential-groups
+// @Tags Groups
 // @Produce json
 // @Success 200 {object} models.DefaultResponseModel
 // @Failure 401 {object} models.DefaultResponseModel

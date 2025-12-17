@@ -6,7 +6,7 @@ import (
 	"github.com/vn-fin/oms/internal/typing"
 )
 
-type LoginCredentialGroupDetails struct {
+type CredentialGroupDetails struct {
 	ID                string               `json:"id"`
 	CredentialID      string               `json:"credential_id"`
 	CredentialGroupID string               `json:"credential_group_id"`
