@@ -3,14 +3,16 @@ package typing
 type OrderStatus string
 
 const (
+	OrderStatusCreated       OrderStatus = "created"
 	OrderStatusPending       OrderStatus = "pending"
-	OrderStatusCanceled      OrderStatus = "canceled"
+	OrderStatusFilled        OrderStatus = "filled"
 	OrderStatusPartialFilled OrderStatus = "partial-filled"
+	OrderStatusCanceled      OrderStatus = "canceled"
 )
 
 func (s OrderStatus) Valid() bool {
 	switch s {
-	case OrderStatusPending, OrderStatusCanceled, OrderStatusPartialFilled:
+	case OrderStatusCreated, OrderStatusPending, OrderStatusFilled, OrderStatusPartialFilled, OrderStatusCanceled:
 		return true
 	default:
 		return false

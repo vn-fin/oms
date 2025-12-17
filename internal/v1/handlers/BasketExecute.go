@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"io"
+	"math"
+	"math/rand"
 	"strings"
 	"time"
 
@@ -41,6 +43,10 @@ func BasketExecute(c *fiber.Ctx) error {
 
 	if !req.ActionType.Valid() {
 		return api.Response().BadRequest("invalid action_type, must be 'B' or 'S'").Send(c)
+	}
+
+	if req.CredentialID == "" {
+		return api.Response().BadRequest("credential_id is required").Send(c)
 	}
 
 	userID := api.GetUserID(c)
@@ -87,20 +93,20 @@ func BasketExecute(c *fiber.Ctx) error {
 		PriceLevel:    req.PriceLevel,
 		ActionType:    req.ActionType,
 		FutureSize:    req.FutureSize,
-		EstimatedCash: estimatedCash,
+		EstimatedCash: 100000000, //Gia su :v (chua tinh)
 		MatchedCash:   0,
-		OrderStatus:   typing.OrderStatusPending,
+		OrderStatus:   typing.OrderStatusCreated,
 		CreatedBy:     userID,
 		CreatedAt:     now,
 	}
 
-	// Insert into database using raw SQL query
-	query := `
+	// Insert session into database
+	sessionQuery := `
 		INSERT INTO execution.basket_execute_sessions
 		(id, basket_id, weight, price_level, action_type, future_size, estimated_cash, matched_cash, order_status, created_by, created_at)
-		VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
-	_, err = db.Postgres.Exec(query,
+	_, err = db.Postgres.Exec(sessionQuery,
 		session.ID,
 		session.BasketID,
 		session.Weight,
@@ -117,9 +123,87 @@ func BasketExecute(c *fiber.Ctx) error {
 		return api.Response().InternalError(err).Send(c)
 	}
 
+	// Create user_orders for each symbol in hedge_config
+	var userOrders []models.UserOrder
+	for _, infoItem := range basket.Info {
+
+		// Find matching symbol in info to get cash
+		var cash float64
+		for j, infoItem := range basket.Info {
+			log.Info().Msgf("Info[%d]: Symbol=%s, Cash=%.2f", j, infoItem.Symbol, infoItem.Cash)
+			if infoItem.Symbol == infoItem.Symbol {
+				cash = infoItem.Cash
+				break
+			}
+		}
+
+		if cash == 0 {
+			log.Info().Msgf("Skipping symbol %s because cash is 0", infoItem.Symbol)
+			continue
+		}
+
+		matchedPrice := 10.0 + rand.Float64()*90.0
+		matchedPrice = math.Round(matchedPrice*100) / 100 // Round to 2 decimal places
+
+		quantity := math.Floor(cash / matchedPrice)
+		if quantity == 0 {
+			continue
+		}
+
+		userOrder := models.UserOrder{
+			ID:           uuid.NewString(),
+			CredentialID: req.CredentialID,
+			SessionID:    session.ID,
+			Symbol:       infoItem.Symbol,
+			SymbolType:   "VnStock",
+			Side:         req.ActionType,
+			OrderPrice:   matchedPrice, // Use matched_price as order_price for mock
+			MatchedPrice: matchedPrice,
+			Quantity:     quantity,
+			FilledQty:    0,
+			RemainingQty: quantity,
+			Status:       typing.OrderStatusCreated,
+			CreatedAt:    now,
+			UpdatedAt:    now,
+		}
+
+		// Insert user_order into database
+		orderQuery := `
+			INSERT INTO execution.user_orders
+			(id, credential_id, session_id, symbol, symbol_type, side, order_price, matched_price, quantity, filled_qty, remaining_qty, status, created_at, updated_at)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		`
+		log.Info().Msgf("Inserting user_order - ID: %s, Symbol: %s, SymbolType: %s, Quantity: %.0f",
+			userOrder.ID, userOrder.Symbol, userOrder.SymbolType, userOrder.Quantity)
+		_, err = db.Postgres.Exec(orderQuery,
+			userOrder.ID,
+			userOrder.CredentialID,
+			userOrder.SessionID,
+			userOrder.Symbol,
+			userOrder.SymbolType,
+			userOrder.Side,
+			userOrder.OrderPrice,
+			userOrder.MatchedPrice,
+			userOrder.Quantity,
+			userOrder.FilledQty,
+			userOrder.RemainingQty,
+			userOrder.Status,
+			userOrder.CreatedAt,
+			userOrder.UpdatedAt,
+		)
+		if err != nil {
+			return api.Response().InternalError(err).Send(c)
+		}
+
+		userOrders = append(userOrders, userOrder)
+	}
+
 	return api.Response().
 		Status(fiber.StatusCreated).
-		Data(session).
+		Data(fiber.Map{
+			"session":     session,
+			"user_orders": userOrders,
+		}).
 		Message("Basket execution session created successfully").
 		Send(c)
 }

@@ -13,6 +13,7 @@ import (
 )
 
 type BasketCreateRequest struct {
+	GroupID     string                     `json:"group_id"`
 	Name        string                     `json:"name"`
 	Description string                     `json:"description"`
 	Info        []models.BasketInfo        `json:"info"`
@@ -54,6 +55,7 @@ func BasketCreate(c *fiber.Ctx) error {
 	now := time.Now().UTC()
 	basket := models.Basket{
 		ID:          uuid.NewString(),
+		GroupID:     req.GroupID,
 		Name:        req.Name,
 		Description: req.Description,
 		Info:        req.Info,
@@ -67,11 +69,12 @@ func BasketCreate(c *fiber.Ctx) error {
 
 	// Insert into database using raw SQL query
 	query := `
-		INSERT INTO execution.baskets (id, name, description, info,hedge_config, created_by, updated_by, created_at, updated_at, status)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)
+		INSERT INTO execution.baskets (id,group_id, name, description, info,hedge_config, created_by, updated_by, created_at, updated_at, status)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
 	`
 	_, err := db.Postgres.Exec(query,
 		basket.ID,
+		basket.GroupID,
 		basket.Name,
 		basket.Description,
 		basket.Info,

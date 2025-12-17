@@ -8,6 +8,7 @@ import (
 
 type Basket struct {
 	ID          string              `json:"id" pg:"id,pk"`
+	GroupID     string              `json:"groupId" pg:"group_id,pk"`
 	Name        string              `json:"name" pg:"name"`
 	Description string              `json:"description" pg:"description"`
 	Info        []BasketInfo        `json:"info" pg:"info,type:jsonb"`
