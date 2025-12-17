@@ -35,21 +35,17 @@ func CredentialListByGroup(c *fiber.Ctx) error {
 	}
 
 	// Query all credentials for the group (with user_id check for security)
-	var credentials []models.Credential
+	var credentials []models.CredentialByGroup
 	query := `
 		SELECT DISTINCT
 			lc.id as credential_id,
 			lc.name,
-			lc.description,
-			lc.info,
-			lc.created_at,
-			lc.updated_at,
+
 			lc.status
 		FROM users.credential_groups cg
 		INNER JOIN users.login_credential_group_details lcgd ON cg.id = lcgd.credential_group_id
 		INNER JOIN users.login_credentials lc ON lcgd.credential_id = lc.id
 		WHERE cg.user_id = ? AND cg.id = ?
-		ORDER BY lc.created_at DESC
 	`
 	_, err := db.Postgres.Query(&credentials, query, userID, groupID)
 	if err != nil {
@@ -58,7 +54,7 @@ func CredentialListByGroup(c *fiber.Ctx) error {
 
 	// Return empty array if no credentials found
 	if credentials == nil {
-		credentials = []models.Credential{}
+		credentials = []models.CredentialByGroup{}
 	}
 
 	return api.Response().

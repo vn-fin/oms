@@ -15,3 +15,9 @@ type Credential struct {
 	UpdatedAt    time.Time            `json:"updated_at"`
 	Status       typing.AccountStatus `json:"status"`
 }
+
+type CredentialByGroup struct {
+	CredentialID string               `json:"credential_id"`
+	Name         string               `json:"name"`
+	Status       typing.AccountStatus `json:"status"`
+}
