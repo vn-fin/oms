@@ -31,6 +31,7 @@ func SetupRoutes(app *fiber.App) {
 		api.Post("/baskets/:basket_id/execute", authMiddleware, handlers.BasketExecute)
 		api.Get("/baskets/:basket_id/execute-sessions", authMiddleware, handlers.BasketExecuteSessionsList)
 		api.Post("/baskets/:basket_id/executions/:execution_id/cancel", authMiddleware, handlers.BasketExecutionCancel)
+		api.Get("/baskets/:basket_id/execute/:execution_id/orders", authMiddleware, handlers.UserOrderListBySession)
 
 		// credentials
 		api.Post("/credentials", authMiddleware, handlers.CredentialCreate)
@@ -40,5 +41,6 @@ func SetupRoutes(app *fiber.App) {
 		// credential groups
 		api.Get("/credential-groups", authMiddleware, handlers.GetListGroupByUserID)
 		api.Post("/credential-groups", authMiddleware, handlers.CredentialGroupCreate)
+		api.Get("/credential-groups/:group_id/credentials", authMiddleware, handlers.CredentialListByGroup)
 	}
 }
