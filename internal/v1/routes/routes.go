@@ -37,8 +37,8 @@ func SetupRoutes(app *fiber.App) {
 		api.Delete("/credentials/:credential_id", authMiddleware, handlers.CredentialDelete)
 
 		// credential groups
+		api.Get("/credential-groups", authMiddleware, handlers.GetListGroupByUserID)
 		api.Post("/credential-groups", authMiddleware, handlers.CredentialGroupCreate)
 		api.Post("/credential-groups/add-credential", authMiddleware, handlers.CredentialGroupAddCredential)
-
 	}
 }
