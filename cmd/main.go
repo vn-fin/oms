@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
+	"github.com/rs/zerolog/log"
 	_ "github.com/vn-fin/oms/docs"
 	"github.com/vn-fin/oms/internal/config"
 	"github.com/vn-fin/oms/internal/db"
@@ -13,8 +15,8 @@ import (
 	"github.com/vn-fin/oms/internal/remote"
 	v1Routes "github.com/vn-fin/oms/internal/v1/routes"
 	v2Routes "github.com/vn-fin/oms/internal/v2/routes"
-
-	"github.com/rs/zerolog/log"
+	"github.com/vn-fin/oms/pkg/kafka"
+	"github.com/vn-fin/oms/pkg/stream"
 )
 
 // @securityDefinitions.apikey BearerAuth
@@ -44,6 +46,10 @@ func main() {
 		panic(err)
 	}
 	defer remote.CloseAuthGrpcClient()
+	if err = kafka.InitConsumer(); err != nil {
+		panic(err)
+	}
+	defer kafka.CloseConsumer()
 
 	// Initialize the Fiber app
 	app := fiber.New(fiber.Config{
@@ -66,6 +72,15 @@ func main() {
 	// Register routes for version 1
 	v1Routes.SetupRoutes(app)
 	v2Routes.SetupRoutes(app)
+
+	// Create context for graceful shutdown
+	ctx := context.Background()
+
+	// Start Kafka price stream processor (no callback needed, data stored in mem)
+	stream.ProcessKafkaPriceStream(ctx, nil)
+
+	// Start stats logging every 10 seconds
+	go stream.Stats(ctx, 10)
 
 	// Start server
 	err = app.Listen(fmt.Sprintf("%s:%d", "0.0.0.0", 3000))

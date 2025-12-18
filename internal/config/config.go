@@ -37,9 +37,19 @@ var (
 )
 
 var AdminEmails string
+var DefaultLocale string
 
 const RedisCachePrefix = "api.oms.cache:"
 const DefaultCacheDuration = 5 * time.Second
+
+// Redis keys
+const (
+	RedisOrderListPrefixKey = "order.list"
+	RedisOrderSetKey        = "orders.by.id"
+)
+
+// Channel name
+const ChannelMatchPriceMessage = "market.data.channel"
 
 // Kafka Config
 var (
@@ -47,10 +57,18 @@ var (
 	KafkaConsumerGroup   = "oms.orderbook.consumer"
 	KafkaMarketDataTopic = "market.data.transformed"
 	KafkaMessageSource   = "dnse"
+	KafkaValidDataTypes  = map[string]bool{
+		"TP": true,
+		"ST": true,
+	}
+	KafkaOrderTopic = "orders"
 )
 
 // Message types
-const MessageTypeOrderBook = "TP"
+const (
+	MessageTypeOrderBook = "TP"
+	MessageTypeTick      = "ST" // alias for MessageTypeStockTick
+)
 
 func InitConfig() error {
 	var err error
@@ -107,6 +125,9 @@ func InitConfig() error {
 	if KafkaServers == "" {
 		log.Warn().Msg("KAFKA_SERVERS not set, Kafka consumer will not be available")
 	}
+
+	// Timezone
+	DefaultLocale = os.Getenv("TZ")
 
 	return nil
 }

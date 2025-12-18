@@ -19,6 +19,9 @@ func SetupRoutes(app *fiber.App) {
 		api.Get("/ping", handlers.PingHandler)
 		api.Get("/ping-auth", authMiddleware, handlers.PingHandler)
 
+		// Market data
+		api.Get("/market/price/:symbol", handlers.GetPriceInfo)
+
 		// baskets
 		api.Get("/baskets", authMiddleware, handlers.BasketList)
 		api.Post("/baskets", authMiddleware, handlers.BasketCreate)
