@@ -63,10 +63,10 @@ func CredentialCreate(c *fiber.Ctx) error {
 		CredentialID: uuid.NewString(),
 		Name:         req.Name,
 		Description:  req.Description,
-		//Info:         req.Info,
-		CreatedAt: now,
-		UpdatedAt: now,
-		Status:    typing.StatusActive,
+		Info:         req.Info,
+		CreatedAt:    now,
+		UpdatedAt:    now,
+		Status:       typing.StatusActive,
 	}
 
 	// Insert into database
@@ -78,7 +78,7 @@ func CredentialCreate(c *fiber.Ctx) error {
 		credential.CredentialID,
 		credential.Name,
 		credential.Description,
-		//credential.Info,
+		credential.Info,
 		credential.CreatedAt,
 		credential.UpdatedAt,
 		credential.Status,

@@ -68,13 +68,22 @@ func CredentialGroupCreate(c *fiber.Ctx) error {
 	}
 
 	now := time.Now().UTC()
+	// Calculate totals
+	var totalCashLimit, totalBalance float64
+	for _, cred := range req.Credentials {
+		totalCashLimit += cred.CashLimit
+		totalBalance += cred.CashLimit // Initial balance equals cash limit
+	}
+
 	credentialGroup := models.CredentialGroup{
-		ID:        uuid.NewString(),
-		Name:      req.Name,
-		UserID:    userID,
-		CreatedAt: now,
-		UpdatedAt: now,
-		Status:    typing.StatusActive,
+		ID:             uuid.NewString(),
+		Name:           req.Name,
+		UserID:         userID,
+		TotalCashLimit: totalCashLimit,
+		TotalBalance:   totalBalance,
+		CreatedAt:      now,
+		UpdatedAt:      now,
+		Status:         typing.StatusActive,
 	}
 
 	// Insert credential group

@@ -7,13 +7,13 @@ import (
 )
 
 type Credential struct {
-	CredentialID string `json:"credential_id" pg:"credential_id"`
-	Name         string `json:"name" pg:"name"`
-	Description  string `json:"description" pg:"description"`
-	//Info         []CredentialInfo     `json:"info" pg:"info"`
-	CreatedAt time.Time            `json:"created_at" pg:"created_at"`
-	UpdatedAt time.Time            `json:"updated_at" pg:"updated_at"`
-	Status    typing.AccountStatus `json:"status" pg:"status"`
+	CredentialID string               `json:"credential_id" pg:"credential_id"`
+	Name         string               `json:"name" pg:"name"`
+	Description  string               `json:"description" pg:"description"`
+	Info         []CredentialInfo     `json:"info" pg:"info"`
+	CreatedAt    time.Time            `json:"created_at" pg:"created_at"`
+	UpdatedAt    time.Time            `json:"updated_at" pg:"updated_at"`
+	Status       typing.AccountStatus `json:"status" pg:"status"`
 }
 
 type CredentialByGroup struct {

@@ -18,7 +18,7 @@ import (
 // @Failure 500 {object} models.DefaultResponseModel
 // @Security BearerAuth
 // @Router /oms/v1/credential-groups [get]
-func GetListGroupByUserID(c *fiber.Ctx) error {
+func GetListGroup(c *fiber.Ctx) error {
 	// Get userID from context (set by AuthMiddleware)
 	userEmail := api.GetUserEmail(c)
 	if userEmail != config.AdminEmails {
@@ -27,9 +27,19 @@ func GetListGroupByUserID(c *fiber.Ctx) error {
 	// Query all credential groups for the user
 	var groups []models.CredentialGroup
 	query := `
-		SELECT id, name, user_id, created_at, updated_at, status
-		FROM users.credential_groups
-		ORDER BY created_at DESC
+		SELECT 
+			cg.id, 
+			cg.name, 
+			cg.user_id, 
+			cg.created_at, 
+			cg.updated_at, 
+			cg.status,
+			COALESCE(SUM(lcgd.cash_limit), 0) as total_cash_limit,
+			COALESCE(SUM(lcgd.balance), 0) as total_balance
+		FROM users.credential_groups cg
+		LEFT JOIN users.login_credential_group_details lcgd ON cg.id = lcgd.credential_group_id
+		GROUP BY cg.id, cg.name, cg.user_id, cg.created_at, cg.updated_at, cg.status
+		ORDER BY cg.created_at DESC
 	`
 	_, err := db.Postgres.Query(&groups, query)
 	if err != nil {
