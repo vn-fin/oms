@@ -24,7 +24,7 @@ import (
 // @Failure 404 {object} models.DefaultResponseModel
 // @Failure 500 {object} models.DefaultResponseModel
 // @Security BearerAuth
-// @Router /oms/v1/orders/{order_id}/update-price [put]
+// @Router /oms/v1/orders/{order_id}/update [put]
 func UserOrderUpdatePrice(c *fiber.Ctx) error {
 	orderID := strings.TrimSpace(c.Params("order_id"))
 	if orderID == "" {

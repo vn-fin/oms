@@ -38,7 +38,7 @@ func SetupRoutes(app *fiber.App) {
 		api.Put("/baskets/:basket_id/execute/:execution_id/update-price", authMiddleware, handlers.UserOrderBatchUpdatePrice)
 
 		// orders
-		api.Put("/orders/:order_id/update-price", authMiddleware, handlers.UserOrderUpdatePrice)
+		api.Put("/orders/:order_id/update", authMiddleware, handlers.UserOrderUpdatePrice)
 
 		// credentials
 		api.Post("/credentials", authMiddleware, handlers.CredentialCreate)
