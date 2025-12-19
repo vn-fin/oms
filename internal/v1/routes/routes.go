@@ -41,6 +41,7 @@ func SetupRoutes(app *fiber.App) {
 		api.Put("/orders/:order_id/update", authMiddleware, handlers.UserOrderUpdatePrice)
 
 		// credentials
+		api.Get("/credentials", authMiddleware, handlers.CredentialListAll)
 		api.Post("/credentials", authMiddleware, handlers.CredentialCreate)
 		api.Put("/credentials/:credential_id", authMiddleware, handlers.CredentialUpdate)
 		api.Delete("/credentials/:credential_id", authMiddleware, handlers.CredentialDelete)
