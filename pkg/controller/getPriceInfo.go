@@ -2,20 +2,9 @@ package controller
 
 import (
 	"github.com/vn-fin/oms/pkg/mem"
-	"github.com/vn-fin/xpb/xpb/order"
 )
 
-func GetLatestOrderBook(symbol string) *order.OrderBookInfo {
-	mem.Mutex.RLock()
-	defer mem.Mutex.RUnlock()
-	ob, ok := mem.LatestOrderBookMap[symbol]
-	if !ok {
-		return nil
-	}
-	return &ob
-}
-
-// PriceInfo contains bid, ask and mid prices
+// PriceInfo contains bid, ask, mid, ceil, floor prices
 type PriceInfo struct {
 	Bid1  float64 `json:"bid1"`
 	Bid2  float64 `json:"bid2"`
@@ -28,13 +17,10 @@ type PriceInfo struct {
 	Floor float64 `json:"floor"`
 }
 
-// GetPriceInfo returns 3 bid prices, 3 ask prices and mid price
+// GetPriceInfo returns 3 bid prices, 3 ask prices, mid, ceil, floor for a symbol
 func GetPriceInfo(symbol string) *PriceInfo {
-	mem.Mutex.RLock()
-	defer mem.Mutex.RUnlock()
-
-	ob, ok := mem.LatestOrderBookMap[symbol]
-	if !ok {
+	ob := mem.GetLatestOrderBook(symbol)
+	if ob == nil {
 		return nil
 	}
 
@@ -67,8 +53,12 @@ func GetPriceInfo(symbol string) *PriceInfo {
 		info.Mid = (info.Bid1 + info.Ask1) / 2
 	}
 
-	// Get ceil and floor prices from database
-	info.Ceil, info.Floor = GetCeilFloor(symbol)
+	// Get ceil and floor from StockInfo
+	stockInfo := mem.GetLastStockInfo(symbol)
+	if stockInfo != nil {
+		info.Ceil = stockInfo.Ceil
+		info.Floor = stockInfo.Floor
+	}
 
 	return info
 }

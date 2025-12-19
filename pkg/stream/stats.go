@@ -31,6 +31,7 @@ func printStats() {
 	currentValid := totalValidMessages.Load()
 
 	maxOrderBookTime := getMaxTimeFromMemory(config.MessageTypeOrderBook)
+	maxStockInfoTime := getMaxTimeFromMemory(config.MessageTypeStockInfo)
 	pendingMessages := len(chanKafkaMessage)
 
 	// Get price info for the latest symbol
@@ -40,6 +41,7 @@ func printStats() {
 		Str("module", "stream-stats").
 		Int64("total_messages", currentReceived).
 		Str("latest_orderbook", maxOrderBookTime.ToString()).
+		Str("latest_stock_info", maxStockInfoTime.ToString()).
 		Int("pending_messages", pendingMessages).
 		Int64("valid_messages", currentValid)
 
@@ -51,19 +53,31 @@ func printStats() {
 			Float64("ask1", priceInfo.Ask1).
 			Float64("ask2", priceInfo.Ask2).
 			Float64("ask3", priceInfo.Ask3).
-			Float64("mid", priceInfo.Mid)
+			Float64("mid", priceInfo.Mid).
+			Float64("ceil", priceInfo.Ceil).
+			Float64("floor", priceInfo.Floor)
 	}
 
 	logEvent.Msg("Kafka stream statistics")
 }
 
 func getMaxTimeFromMemory(dataType string) LatestMessage {
+	var maxTimeMessage LatestMessage
+
 	switch dataType {
 	case config.MessageTypeOrderBook:
-		mem.Mutex.RLock()
-		defer mem.Mutex.RUnlock()
-		var maxTimeMessage LatestMessage
-		for _, v := range mem.LatestOrderBookMap {
+		for _, v := range mem.GetLatestOrderBookMap() {
+			currentMsg := LatestMessage{
+				Time:   v.TimeF,
+				Symbol: v.Symbol,
+			}
+			if currentMsg.Time > maxTimeMessage.Time {
+				maxTimeMessage = currentMsg
+			}
+		}
+		return maxTimeMessage
+	case config.MessageTypeStockInfo:
+		for _, v := range mem.GetLatestStockInfoMap() {
 			currentMsg := LatestMessage{
 				Time:   v.TimeF,
 				Symbol: v.Symbol,

@@ -7,12 +7,11 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"github.com/vn-fin/oms/internal/config"
-	"github.com/vn-fin/oms/pkg/controller"
+	"github.com/vn-fin/oms/pkg/mem"
 	"github.com/vn-fin/xpb/xpb/order"
 )
 
 // processMessageFromChan spawns multiple worker goroutines that process Kafka messages concurrently.
-// onTick is an optional callback for when tick messages are processed.
 func processMessageFromChan(ctx context.Context, numWorkers int, onTick func(symbol string, tickBytes []byte)) {
 	var wg sync.WaitGroup
 	wg.Add(numWorkers)
@@ -44,21 +43,18 @@ func processMessageFromChan(ctx context.Context, numWorkers int, onTick func(sym
 						// Build to parse timestamp
 						orderBookMessage.Build()
 						// Store latest order book
-						controller.SetLatestOrderBook(msg.Symbol, orderBookMessage)
+						mem.SetLatestOrderBook(msg.Symbol, mem.OrderBookInfo(orderBookMessage))
 
-					case config.MessageTypeTick:
-						var tickMessage order.TickInfo
-						if err := json.Unmarshal(msg.MessageBytes, &tickMessage); err != nil {
-							log.Error().Err(err).Str("symbol", msg.Symbol).Msg("Failed to unmarshal Tick message")
+					case config.MessageTypeStockInfo:
+						var stockInfoMessage mem.StockInfo
+						if err := json.Unmarshal(msg.MessageBytes, &stockInfoMessage); err != nil {
+							log.Error().Err(err).Str("symbol", msg.Symbol).Msg("Failed to unmarshal StockInfo message")
 							continue
 						}
-						// Store latest tick
-						controller.SetLatestTick(msg.Symbol, tickMessage)
-
-						// Call the tick callback if provided
-						if onTick != nil {
-							onTick(msg.Symbol, msg.MessageBytes)
-						}
+						// Build to parse timestamp
+						stockInfoMessage.Build()
+						// Store latest stock info
+						mem.SetLatestStockInfo(msg.Symbol, stockInfoMessage)
 
 					default:
 						log.Warn().Str("type", msg.MessageType).Msg("Unknown message type received")

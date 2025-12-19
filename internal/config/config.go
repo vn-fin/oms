@@ -60,7 +60,7 @@ var (
 	KafkaMessageSource   = "dnse"
 	KafkaValidDataTypes  = map[string]bool{
 		"TP": true,
-		"ST": true,
+		"SI": true,
 	}
 	KafkaOrderTopic = "orders"
 )
@@ -68,7 +68,7 @@ var (
 // Message types
 const (
 	MessageTypeOrderBook = "TP"
-	MessageTypeTick      = "ST" // alias for MessageTypeStockTick
+	MessageTypeStockInfo = "SI"
 )
 
 func InitConfig() error {
