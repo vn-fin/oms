@@ -17,13 +17,15 @@ func GetLatestOrderBook(symbol string) *order.OrderBookInfo {
 
 // PriceInfo contains bid, ask and mid prices
 type PriceInfo struct {
-	Bid1 float64 `json:"bid1"`
-	Bid2 float64 `json:"bid2"`
-	Bid3 float64 `json:"bid3"`
-	Ask1 float64 `json:"ask1"`
-	Ask2 float64 `json:"ask2"`
-	Ask3 float64 `json:"ask3"`
-	Mid  float64 `json:"mid"`
+	Bid1  float64 `json:"bid1"`
+	Bid2  float64 `json:"bid2"`
+	Bid3  float64 `json:"bid3"`
+	Ask1  float64 `json:"ask1"`
+	Ask2  float64 `json:"ask2"`
+	Ask3  float64 `json:"ask3"`
+	Mid   float64 `json:"mid"`
+	Ceil  float64 `json:"ceil"`
+	Floor float64 `json:"floor"`
 }
 
 // GetPriceInfo returns 3 bid prices, 3 ask prices and mid price
@@ -64,6 +66,9 @@ func GetPriceInfo(symbol string) *PriceInfo {
 	if info.Bid1 > 0 && info.Ask1 > 0 {
 		info.Mid = (info.Bid1 + info.Ask1) / 2
 	}
+
+	// Get ceil and floor prices from database
+	info.Ceil, info.Floor = GetCeilFloor(symbol)
 
 	return info
 }

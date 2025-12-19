@@ -39,6 +39,9 @@ func main() {
 	if err = db.InitPostgresUserDB(); err != nil {
 		panic(err)
 	}
+	if err = db.InitPostgresXnoData(); err != nil {
+		panic(err)
+	}
 	defer db.ClosePostgres()
 
 	// Init Auth gRPC Client

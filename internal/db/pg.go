@@ -12,6 +12,7 @@ import (
 
 var Postgres *pg.DB
 var PostgresUserDB *pg.DB
+var PostgresXnoData *pg.DB
 
 func InitPostgres() error {
 	Postgres = pg.Connect(&pg.Options{
@@ -57,6 +58,28 @@ func InitPostgresUserDB() error {
 	return nil
 }
 
+func InitPostgresXnoData() error {
+	PostgresXnoData = pg.Connect(&pg.Options{
+		Addr:         fmt.Sprintf("%s:%d", config.PostgresHost, config.PostgresPort),
+		User:         config.PostgresUser,
+		Password:     config.PostgresPassword,
+		Database:     config.PostgresXnoDataDB,
+		PoolSize:     config.PostgresPoolSize,
+		MaxRetries:   5,
+		IdleTimeout:  5 * time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 5 * time.Second,
+	})
+
+	err := PostgresXnoData.Ping(context.Background())
+	if err != nil {
+		log.Error().Msgf("Error connecting to Postgres XnoData DB: %v", err)
+		return err
+	}
+	log.Info().Msgf("Connected to Postgres XnoData DB at %s:%d/{%s}", config.PostgresHost, config.PostgresPort, config.PostgresXnoDataDB)
+	return nil
+}
+
 // ClosePostgres
 func ClosePostgres() {
 	if Postgres != nil {
@@ -75,5 +98,14 @@ func ClosePostgres() {
 			return
 		}
 		log.Info().Msgf("Closed Postgres User DB")
+	}
+
+	if PostgresXnoData != nil {
+		err := PostgresXnoData.Close()
+		if err != nil {
+			log.Error().Msgf("Error closing Postgres XnoData DB: %v", err)
+			return
+		}
+		log.Info().Msgf("Closed Postgres XnoData DB")
 	}
 }

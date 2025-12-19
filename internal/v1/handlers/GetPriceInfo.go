@@ -7,12 +7,12 @@ import (
 	"github.com/vn-fin/oms/pkg/controller"
 )
 
-// GetPriceInfo returns bid1-3, ask1-3 and mid price for a symbol
+// GetPriceInfo returns bid1-3, ask1-3, mid, ceil, floor price for a symbol
 // @Summary Get price info
-// @Description Get bid1-3, ask1-3 and mid price for a symbol from latest orderbook
+// @Description Get bid1-3, ask1-3, mid, ceil, floor for a symbol from latest orderbook
 // @Tags market
 // @Param symbol path string true "Stock symbol"
-// @Param price_level query string false "Price level: bid1, bid2, bid3, ask1, ask2, ask3, mid (empty = all)"
+// @Param price_level query string false "Price level: bid1, bid2, bid3, ask1, ask2, ask3, mid, ceil, floor (empty = all)"
 // @Success 200 {object} controller.PriceInfo
 // @Router /oms/v1/market/price/{symbol} [get]
 func GetPriceInfo(c *fiber.Ctx) error {
@@ -51,10 +51,14 @@ func GetPriceInfo(c *fiber.Ctx) error {
 			price = priceInfo.Ask3
 		case "mid":
 			price = priceInfo.Mid
+		case "ceil":
+			price = priceInfo.Ceil
+		case "floor":
+			price = priceInfo.Floor
 		default:
 			return c.Status(400).JSON(fiber.Map{
 				"error":        "invalid price_level",
-				"valid_levels": []string{"bid1", "bid2", "bid3", "ask1", "ask2", "ask3", "mid"},
+				"valid_levels": []string{"bid1", "bid2", "bid3", "ask1", "ask2", "ask3", "mid", "ceil", "floor"},
 			})
 		}
 		return c.JSON(fiber.Map{
@@ -74,5 +78,7 @@ func GetPriceInfo(c *fiber.Ctx) error {
 		"ask2":   priceInfo.Ask2,
 		"ask3":   priceInfo.Ask3,
 		"mid":    priceInfo.Mid,
+		"ceil":   priceInfo.Ceil,
+		"floor":  priceInfo.Floor,
 	})
 }

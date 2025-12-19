@@ -20,6 +20,7 @@ var (
 	PostgresPassword   string
 	PostgresDb         string
 	PostgresUserDB     string
+	PostgresXnoDataDB  string
 	// Semaphore for Postgres queries
 	PostgresSemaphore *semaphore.Weighted
 )
@@ -95,6 +96,10 @@ func InitConfig() error {
 	PostgresPassword = os.Getenv("POSTGRES_PASSWORD")
 	PostgresDb = os.Getenv("POSTGRES_DB")
 	PostgresUserDB = os.Getenv("POSTGRES_USER_DB")
+	PostgresXnoDataDB = os.Getenv("POSTGRES_XNO_DATA_DB")
+	if PostgresXnoDataDB == "" {
+		PostgresXnoDataDB = "xno_data" // default value
+	}
 	// Init semaphore (max N concurrent Postgres queries)
 	PostgresSemaphore = semaphore.NewWeighted(int64(PostgresPoolSize))
 

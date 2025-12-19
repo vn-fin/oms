@@ -35,6 +35,10 @@ func SetupRoutes(app *fiber.App) {
 		api.Get("/baskets/:basket_id/execute-sessions", authMiddleware, handlers.BasketExecuteSessionsList)
 		api.Post("/baskets/:basket_id/executions/:execution_id/cancel", authMiddleware, handlers.BasketExecutionCancel)
 		api.Get("/baskets/:basket_id/execute/:execution_id/orders", authMiddleware, handlers.UserOrderListBySession)
+		api.Put("/baskets/:basket_id/execute/:execution_id/update-price", authMiddleware, handlers.UserOrderBatchUpdatePrice)
+
+		// orders
+		api.Put("/orders/:order_id/update-price", authMiddleware, handlers.UserOrderUpdatePrice)
 
 		// credentials
 		api.Post("/credentials", authMiddleware, handlers.CredentialCreate)

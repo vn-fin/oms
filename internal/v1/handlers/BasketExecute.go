@@ -3,7 +3,6 @@ package handlers
 import (
 	"io"
 	"math"
-	"math/rand"
 	"strings"
 	"time"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/vn-fin/oms/internal/db"
 	"github.com/vn-fin/oms/internal/models"
 	"github.com/vn-fin/oms/internal/typing"
+	"github.com/vn-fin/oms/pkg/controller"
 )
 
 // BasketExecute
@@ -142,10 +142,14 @@ func BasketExecute(c *fiber.Ctx) error {
 			continue
 		}
 
-		matchedPrice := 10.0 + rand.Float64()*90.0
-		matchedPrice = math.Round(matchedPrice*100) / 100 // Round to 2 decimal places
+		// Get price from latest message based on price_level
+		orderPrice := controller.GetPriceByLevel(infoItem.Symbol, req.PriceLevel)
+		if orderPrice <= 0 {
+			log.Warn().Msgf("No price available for symbol %s at price_level %s", infoItem.Symbol, req.PriceLevel)
+			continue
+		}
 
-		quantity := math.Floor(cash / matchedPrice)
+		quantity := math.Floor(cash / orderPrice)
 		if quantity == 0 {
 			continue
 		}
@@ -157,8 +161,8 @@ func BasketExecute(c *fiber.Ctx) error {
 			Symbol:       infoItem.Symbol,
 			SymbolType:   "VnStock",
 			Side:         req.ActionType,
-			OrderPrice:   matchedPrice, // Use matched_price as order_price for mock
-			MatchedPrice: matchedPrice,
+			OrderPrice:   orderPrice,
+			MatchedPrice: 0, // Will be updated when order is matched
 			Quantity:     quantity,
 			FilledQty:    0,
 			RemainingQty: quantity,
