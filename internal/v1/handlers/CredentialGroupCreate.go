@@ -102,19 +102,21 @@ func CredentialGroupCreate(c *fiber.Ctx) error {
 			CredentialID:      cred.CredentialID,
 			CredentialGroupID: credentialGroup.ID,
 			CashLimit:         cred.CashLimit,
+			Balance:           cred.CashLimit,
 			UpdatedAt:         now,
 			Status:            typing.StatusActive,
 		}
 
 		detailQuery := `
-			INSERT INTO users.login_credential_group_details (id, credential_id, credential_group_id, cash_limit, updated_at, status)
-			VALUES (?, ?, ?, ?, ?, ?)
+			INSERT INTO users.login_credential_group_details (id, credential_id, credential_group_id, cash_limit,balance, updated_at, status)
+			VALUES (?, ?, ?, ?, ?, ?,?)
 		`
 		_, err = db.Postgres.Exec(detailQuery,
 			detail.ID,
 			detail.CredentialID,
 			detail.CredentialGroupID,
 			detail.CashLimit,
+			detail.Balance,
 			detail.UpdatedAt,
 			detail.Status,
 		)
