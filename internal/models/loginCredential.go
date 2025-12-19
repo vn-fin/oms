@@ -21,3 +21,20 @@ type CredentialByGroup struct {
 	Name         string               `json:"name"`
 	Status       typing.AccountStatus `json:"status"`
 }
+
+type CredentialGroupRef struct {
+	GroupID   string  `json:"group_id"`
+	Name      string  `json:"name"`
+	CashLimit float64 `json:"cash_limit"`
+}
+
+type CredentialWithGroups struct {
+	CredentialID string               `json:"credential_id" pg:"credential_id"`
+	Name         string               `json:"name" pg:"name"`
+	Description  string               `json:"description" pg:"description"`
+	Info         []CredentialInfo     `json:"info" pg:"info"`
+	Groups       []CredentialGroupRef `json:"groups"`
+	CreatedAt    time.Time            `json:"created_at" pg:"created_at"`
+	UpdatedAt    time.Time            `json:"updated_at" pg:"updated_at"`
+	Status       typing.AccountStatus `json:"status" pg:"status"`
+}
