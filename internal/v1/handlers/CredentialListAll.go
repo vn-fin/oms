@@ -31,16 +31,16 @@ func CredentialListAll(c *fiber.Ctx) error {
 
 	// Define row struct for LEFT JOIN query
 	type credentialRow struct {
-		CredentialID string                  `pg:"credential_id"`
-		Name         string                  `pg:"name"`
-		Description  string                  `pg:"description"`
-		Info         []models.CredentialInfo `pg:"info"`
-		CreatedAt    time.Time               `pg:"created_at"`
-		UpdatedAt    time.Time               `pg:"updated_at"`
-		Status       typing.AccountStatus    `pg:"status"`
-		GroupID      *string                 `pg:"group_id"`
-		GroupName    *string                 `pg:"group_name"`
-		CashLimit    *float64                `pg:"cash_limit"`
+		CredentialID string `pg:"credential_id"`
+		Name         string `pg:"name"`
+		Description  string `pg:"description"`
+		//Info         []models.CredentialInfo `pg:"info"`
+		CreatedAt time.Time            `pg:"created_at"`
+		UpdatedAt time.Time            `pg:"updated_at"`
+		Status    typing.AccountStatus `pg:"status"`
+		GroupID   *string              `pg:"group_id"`
+		GroupName *string              `pg:"group_name"`
+		CashLimit *float64             `pg:"cash_limit"`
 	}
 
 	// Query all credentials with groups (LEFT JOIN)
@@ -50,7 +50,6 @@ func CredentialListAll(c *fiber.Ctx) error {
 			lc.id as credential_id,
 			lc.name,
 			lc.description,
-			lc.info,
 			lc.created_at,
 			lc.updated_at,
 			lc.status,
@@ -79,11 +78,11 @@ func CredentialListAll(c *fiber.Ctx) error {
 				CredentialID: row.CredentialID,
 				Name:         row.Name,
 				Description:  row.Description,
-				Info:         row.Info,
-				Groups:       []models.CredentialGroupRef{},
-				CreatedAt:    row.CreatedAt,
-				UpdatedAt:    row.UpdatedAt,
-				Status:       row.Status,
+				//Info:         row.Info,
+				Groups:    []models.CredentialGroupRef{},
+				CreatedAt: row.CreatedAt,
+				UpdatedAt: row.UpdatedAt,
+				Status:    row.Status,
 			}
 			credentialMap[row.CredentialID] = cred
 		}
