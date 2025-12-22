@@ -25,15 +25,17 @@ func SetupRoutes(app *fiber.App) {
 		// baskets
 		api.Get("/baskets", authMiddleware, handlers.BasketList)
 		api.Post("/baskets", authMiddleware, handlers.BasketCreate)
+
+		// basket execute sessions (must be before /baskets/:id to avoid route conflict)
+		api.Get("/baskets/execute-sessions", authMiddleware, handlers.BasketExecuteSessionsList)
+
 		api.Get("/baskets/:id", authMiddleware, handlers.BasketDetail)
 		api.Put("/baskets/:id", authMiddleware, handlers.BasketUpdate)
 		api.Delete("/baskets/:id", authMiddleware, handlers.BasketDelete)
 		api.Post("/baskets/:id/cancel", authMiddleware, handlers.BasketExecutionCancel)
-
-		// basket execute sessions
 		api.Post("/baskets/:basket_id/execute", authMiddleware, handlers.BasketExecute)
-		api.Get("/baskets/:basket_id/execute-sessions", authMiddleware, handlers.BasketExecuteSessionsList)
 		api.Post("/baskets/:basket_id/executions/:execution_id/cancel", authMiddleware, handlers.BasketExecutionCancel)
+		api.Post("/baskets/:basket_id/executions/:execution_id/match", authMiddleware, handlers.BasketFillAll)
 		api.Get("/baskets/:basket_id/execute/:execution_id/orders", authMiddleware, handlers.UserOrderListBySession)
 		api.Put("/baskets/:basket_id/execute/:execution_id/update-price", authMiddleware, handlers.UserOrderBatchUpdatePrice)
 

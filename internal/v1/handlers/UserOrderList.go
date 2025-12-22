@@ -34,15 +34,40 @@ func UserOrderListBySession(c *fiber.Ctx) error {
 		return api.Response().Unauthorized("user not authenticated").Send(c)
 	}
 
-	// Query all user orders for the session
+	basketID := strings.TrimSpace(c.Params("basket_id"))
+	if basketID == "" {
+		return api.Response().BadRequest("basket_id is required").Send(c)
+	}
+
+	// Query all user orders for the session with join to verify user ownership
 	var orders []models.UserOrder
 	query := `
-		SELECT id, credential_id, session_id, symbol, symbol_type, side, order_price, matched_price, quantity, filled_qty, remaining_qty, status, created_at, updated_at
-		FROM execution.user_orders
-		WHERE session_id = ?
-		ORDER BY created_at DESC
+		SELECT
+			uo.id,
+			uo.credential_id,
+			uo.session_id,
+			uo.symbol,
+			uo.symbol_type,
+			uo.side,
+			uo.order_type,
+			uo.order_price,
+			uo.matched_price,
+			uo.quantity,
+			uo.filled_qty,
+			uo.remaining_qty,
+			uo.status,
+			uo.created_at,
+			uo.updated_at
+		FROM users.credential_groups cg
+		INNER JOIN execution.baskets b ON cg.id = b.group_id
+		INNER JOIN execution.basket_execute_sessions bes ON b.id = bes.basket_id
+		INNER JOIN execution.user_orders uo ON bes.id = uo.session_id
+		WHERE cg.user_id = ?
+			AND bes.basket_id = ?
+			AND bes.id = ?
+		ORDER BY uo.created_at DESC
 	`
-	_, err := db.Postgres.Query(&orders, query, sessionID)
+	_, err := db.Postgres.Query(&orders, query, userID, basketID, sessionID)
 	if err != nil {
 		return api.Response().InternalError(err).Send(c)
 	}

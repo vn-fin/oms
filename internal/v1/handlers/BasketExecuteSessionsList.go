@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"strings"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/vn-fin/oms/internal/api"
 	"github.com/vn-fin/oms/internal/db"
@@ -15,27 +13,22 @@ import (
 // @Tags Execution
 // @Accept json
 // @Produce json
-// @Param basket_id path string true "Basket ID"
 // @Success 200 {object} models.DefaultResponseModel
 // @Failure 400 {object} models.DefaultResponseModel
 // @Failure 401 {object} models.DefaultResponseModel
 // @Security BearerAuth
-// @Router /oms/v1/baskets/{basket_id}/execute-sessions [get]
+// @Router /oms/v1/baskets/execute-sessions [get]
 func BasketExecuteSessionsList(c *fiber.Ctx) error {
-	basketID := strings.TrimSpace(c.Params("basket_id"))
-	if basketID == "" {
-		return api.Response().BadRequest("basket_id is required").Send(c)
-	}
-
+	userId := api.GetUserID(c)
 	var sessions []models.BasketExecuteSession
 	query := `
 		SELECT id, basket_id, weight, price_level, action_type, future_size,
 		       estimated_cash, matched_cash, order_status, created_by, created_at
 		FROM execution.basket_execute_sessions
-		WHERE basket_id = ?
+		WHERE created_by  = ?
 		ORDER BY created_at DESC
 	`
-	_, err := db.Postgres.Query(&sessions, query, basketID)
+	_, err := db.Postgres.Query(&sessions, query, userId)
 	if err != nil {
 		return api.Response().InternalError(err).Send(c)
 	}
