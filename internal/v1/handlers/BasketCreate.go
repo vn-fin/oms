@@ -4,9 +4,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-pg/pg/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/vn-fin/oms/internal/api"
+	"github.com/vn-fin/oms/internal/config"
 	"github.com/vn-fin/oms/internal/db"
 	"github.com/vn-fin/oms/internal/models"
 	"github.com/vn-fin/oms/internal/typing"
@@ -49,8 +51,40 @@ func BasketCreate(c *fiber.Ctx) error {
 		return api.Response().BadRequest("info is required").Send(c)
 	}
 
-	// Get userID from context (set 1by AuthMiddleware)
+	// Get userID from context (set by AuthMiddleware)
 	userID := api.GetUserID(c)
+	userEmail := api.GetUserEmail(c)
+
+	// If not admin, validate group ownership
+	if userEmail != config.AdminEmails {
+		// Check if group exists and belongs to the user
+		var groupUserID string
+		checkGroupQuery := `SELECT user_id FROM execution.credential_groups WHERE id = ?`
+		_, err := db.Postgres.QueryOne(pg.Scan(&groupUserID), checkGroupQuery, req.GroupID)
+		if err != nil {
+			if err == pg.ErrNoRows {
+				return api.Response().BadRequest("group not found").Send(c)
+			}
+			return api.Response().InternalError(err).Send(c)
+		}
+
+		// Verify group belongs to the user
+		if groupUserID != userID {
+			return api.Response().Forbidden("you do not have permission to create basket for this group").Send(c)
+		}
+	}
+
+	// Check if group already has a basket (applies to both admin and non-admin)
+	var basketCount int
+	checkBasketQuery := `SELECT COUNT(*) FROM execution.baskets WHERE group_id = ? AND status = ?`
+	_, err := db.Postgres.QueryOne(pg.Scan(&basketCount), checkBasketQuery, req.GroupID, typing.RecordStatusEnabled)
+	if err != nil {
+		return api.Response().InternalError(err).Send(c)
+	}
+
+	if basketCount > 0 {
+		return api.Response().BadRequest("this group already has a basket").Send(c)
+	}
 
 	now := time.Now().UTC()
 	basket := models.Basket{
@@ -72,7 +106,7 @@ func BasketCreate(c *fiber.Ctx) error {
 		INSERT INTO execution.baskets (id,group_id, name, description, info,hedge_config, created_by, updated_by, created_at, updated_at, status)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
 	`
-	_, err := db.Postgres.Exec(query,
+	_, err = db.Postgres.Exec(query,
 		basket.ID,
 		basket.GroupID,
 		basket.Name,
