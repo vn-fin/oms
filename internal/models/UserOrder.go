@@ -14,6 +14,7 @@ type UserOrder struct {
 	SymbolType   typing.SymbolType  `json:"symbol_type"`
 	Side         typing.ActionType  `json:"side"`
 	OrderPrice   float64            `json:"order_price"`
+	OrderType    string             `json:"order_type"`
 	MatchedPrice float64            `json:"matched_price"`
 	Quantity     float64            `json:"quantity"`
 	FilledQty    float64            `json:"filled_qty"`

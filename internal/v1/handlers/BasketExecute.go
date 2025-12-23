@@ -162,7 +162,8 @@ func BasketExecute(c *fiber.Ctx) error {
 			SymbolType:   "VnStock",
 			Side:         req.ActionType,
 			OrderPrice:   orderPrice,
-			MatchedPrice: 0, // Will be updated when order is matched
+			OrderType:    "L", // Default order type is Limit
+			MatchedPrice: 0,   // Will be updated when order is matched
 			Quantity:     quantity,
 			FilledQty:    0,
 			RemainingQty: quantity,
@@ -174,8 +175,8 @@ func BasketExecute(c *fiber.Ctx) error {
 		// Insert user_order into database
 		orderQuery := `
 			INSERT INTO execution.user_orders
-			(id, credential_id, session_id, symbol, symbol_type, side, order_price, matched_price, quantity, filled_qty, remaining_qty, status, created_at, updated_at)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			(id, credential_id, session_id, symbol, symbol_type, side, order_price, order_type, matched_price, quantity, filled_qty, remaining_qty, status, created_at, updated_at)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`
 		log.Info().Msgf("Inserting user_order - ID: %s, Symbol: %s, SymbolType: %s, Quantity: %.0f",
 			userOrder.ID, userOrder.Symbol, userOrder.SymbolType, userOrder.Quantity)
@@ -187,6 +188,7 @@ func BasketExecute(c *fiber.Ctx) error {
 			userOrder.SymbolType,
 			userOrder.Side,
 			userOrder.OrderPrice,
+			userOrder.OrderType,
 			userOrder.MatchedPrice,
 			userOrder.Quantity,
 			userOrder.FilledQty,
