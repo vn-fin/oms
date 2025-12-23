@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -8,14 +9,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/vn-fin/oms/internal/api"
-	"github.com/vn-fin/oms/internal/config"
 	"github.com/vn-fin/oms/internal/db"
 	"github.com/vn-fin/oms/internal/models"
 	"github.com/vn-fin/oms/internal/typing"
 )
 
 type BasketCreateRequest struct {
-	GroupID     string                     `json:"group_id"`
 	Name        string                     `json:"name"`
 	Description string                     `json:"description"`
 	Info        []models.BasketInfo        `json:"info"`
@@ -53,43 +52,34 @@ func BasketCreate(c *fiber.Ctx) error {
 
 	// Get userID from context (set by AuthMiddleware)
 	userID := api.GetUserID(c)
-	userEmail := api.GetUserEmail(c)
 
-	// If not admin, validate group ownership
-	if userEmail != config.AdminEmails {
-		// Check if group exists and belongs to the user
-		var groupUserID string
-		checkGroupQuery := `SELECT user_id FROM execution.credential_groups WHERE id = ?`
-		_, err := db.Postgres.QueryOne(pg.Scan(&groupUserID), checkGroupQuery, req.GroupID)
-		if err != nil {
-			if err == pg.ErrNoRows {
-				return api.Response().BadRequest("group not found").Send(c)
-			}
-			return api.Response().InternalError(err).Send(c)
-		}
-
-		// Verify group belongs to the user
-		if groupUserID != userID {
-			return api.Response().Forbidden("you do not have permission to create basket for this group").Send(c)
-		}
-	}
-
-	// Check if group already has a basket (applies to both admin and non-admin)
-	var basketCount int
-	checkBasketQuery := `SELECT COUNT(*) FROM execution.baskets WHERE group_id = ? AND status = ?`
-	_, err := db.Postgres.QueryOne(pg.Scan(&basketCount), checkBasketQuery, req.GroupID, typing.RecordStatusEnabled)
+	// Tìm group cũ nhất chưa có basket
+	var availableGroupID string
+	findAvailableGroupQuery := `
+        SELECT cg.id 
+        FROM execution.credential_groups cg 
+        LEFT JOIN execution.baskets b ON cg.id = b.group_id 
+        WHERE cg.status = ? AND cg.user_id = ? AND b.id IS NULL
+        ORDER BY cg.created_at ASC
+        LIMIT 1
+    `
+	_, err := db.Postgres.QueryOne(
+		pg.Scan(&availableGroupID),
+		findAvailableGroupQuery,
+		typing.RecordStatusEnabled,
+		userID,
+	)
 	if err != nil {
+		if errors.Is(err, pg.ErrNoRows) {
+			return api.Response().BadRequest("no available group found. All your groups already have baskets").Send(c)
+		}
 		return api.Response().InternalError(err).Send(c)
-	}
-
-	if basketCount > 0 {
-		return api.Response().BadRequest("this group already has a basket").Send(c)
 	}
 
 	now := time.Now().UTC()
 	basket := models.Basket{
 		ID:          uuid.NewString(),
-		GroupID:     req.GroupID,
+		GroupID:     availableGroupID, // Dùng group ID tìm được
 		Name:        req.Name,
 		Description: req.Description,
 		Info:        req.Info,
@@ -103,9 +93,9 @@ func BasketCreate(c *fiber.Ctx) error {
 
 	// Insert into database using raw SQL query
 	query := `
-		INSERT INTO execution.baskets (id,group_id, name, description, info,hedge_config, created_by, updated_by, created_at, updated_at, status)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
-	`
+        INSERT INTO execution.baskets (id, group_id, name, description, info, hedge_config, created_by, updated_by, created_at, updated_at, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `
 	_, err = db.Postgres.Exec(query,
 		basket.ID,
 		basket.GroupID,
