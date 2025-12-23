@@ -1,0 +1,16 @@
+name: Deploy OMS on Dev
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: vn-fin/xno_deployment_workflows/.github/workflows/workflow-swarm.yml@main
+    with:
+      environment: dev
+      services: root
+      stack: oms-service
+    secrets:
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
