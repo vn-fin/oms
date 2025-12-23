@@ -19,6 +19,7 @@ type BasketExecuteRequest struct {
 type BasketExecuteSession struct {
 	ID            string             `json:"id"`
 	BasketID      string             `json:"basket_id"`
+	BasketName    string             `json:"basket_name"`
 	Weight        float64            `json:"weight"`
 	PriceLevel    typing.PriceLevel  `json:"price_level"`
 	ActionType    typing.ActionType  `json:"action_type"`

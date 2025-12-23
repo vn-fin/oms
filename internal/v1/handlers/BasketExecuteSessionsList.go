@@ -22,11 +22,25 @@ func BasketExecuteSessionsList(c *fiber.Ctx) error {
 	userId := api.GetUserID(c)
 	var sessions []models.BasketExecuteSession
 	query := `
-		SELECT id, basket_id, weight, price_level, action_type, future_size,
-		       estimated_cash, matched_cash, order_status, created_by, created_at
-		FROM execution.basket_execute_sessions
-		WHERE created_by  = ?
-		ORDER BY created_at DESC
+		SELECT
+    bs.id,
+    bs.basket_id,
+    b.name AS basket_name,
+    bs.weight,
+    bs.price_level,
+    bs.action_type,
+    bs.future_size,
+    bs.estimated_cash,
+    bs.matched_cash,
+    bs.order_status,
+    bs.created_by,
+    bs.created_at
+FROM execution.basket_execute_sessions bs
+         LEFT JOIN execution.baskets b
+                   ON bs.basket_id = b.id
+WHERE bs.created_by = ?
+ORDER BY bs.created_at DESC;
+
 	`
 	_, err := db.Postgres.Query(&sessions, query, userId)
 	if err != nil {
