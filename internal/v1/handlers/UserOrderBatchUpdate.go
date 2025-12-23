@@ -9,7 +9,7 @@ import (
 	"github.com/vn-fin/oms/internal/db"
 	"github.com/vn-fin/oms/internal/models"
 	"github.com/vn-fin/oms/internal/typing"
-	"github.com/vn-fin/oms/pkg/controller"
+	"github.com/vn-fin/oms/internal/utils"
 )
 
 // UserOrderBatchUpdatePrice updates order_price for all orders in an execution session
@@ -33,10 +33,6 @@ func UserOrderBatchUpdatePrice(c *fiber.Ctx) error {
 	}
 
 	priceLevel := typing.PriceLevel(strings.ToLower(strings.TrimSpace(c.Query("price_level"))))
-	if priceLevel == "" {
-		return api.Response().BadRequest("price_level is required (bid01, bid02, bid03, ask01, ask02, ask03, mid, ceil, floor)").Send(c)
-	}
-
 	// Validate price_level
 	if !priceLevel.Valid() {
 		return api.Response().BadRequest("invalid price_level. Valid: bid01, bid02, bid03, ask01, ask02, ask03, mid, ceil, floor").Send(c)
@@ -86,14 +82,13 @@ func UserOrderBatchUpdatePrice(c *fiber.Ctx) error {
 			OldPrice: order.OrderPrice,
 		}
 
-		// Get price from latest message based on price_level
-		newPrice := controller.GetPriceByLevel(order.Symbol, priceLevel)
+		// Get price from database based on price_level
+		newPrice, err := utils.GetPriceByLevel(order.Symbol, priceLevel)
+		if err != nil {
+			return api.Response().InternalError(err).Send(c)
+		}
 		if newPrice <= 0 {
-			result.Status = "failed"
-			result.Error = "price not available for " + string(priceLevel)
-			failCount++
-			results = append(results, result)
-			continue
+			return api.Response().BadRequest("price not available for symbol " + order.Symbol + " at price level " + string(priceLevel)).Send(c)
 		}
 
 		// Update order_price in database
@@ -104,11 +99,7 @@ func UserOrderBatchUpdatePrice(c *fiber.Ctx) error {
 		`
 		_, err = db.Postgres.Exec(updateQuery, newPrice, time.Now(), order.ID)
 		if err != nil {
-			result.Status = "failed"
-			result.Error = err.Error()
-			failCount++
-			results = append(results, result)
-			continue
+			return api.Response().InternalError(err).Send(c)
 		}
 
 		result.NewPrice = newPrice

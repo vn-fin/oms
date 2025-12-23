@@ -13,7 +13,7 @@ import (
 	"github.com/vn-fin/oms/internal/db"
 	"github.com/vn-fin/oms/internal/models"
 	"github.com/vn-fin/oms/internal/typing"
-	"github.com/vn-fin/oms/pkg/controller"
+	"github.com/vn-fin/oms/internal/utils"
 )
 
 // BasketExecute
@@ -43,6 +43,10 @@ func BasketExecute(c *fiber.Ctx) error {
 
 	if !req.ActionType.Valid() {
 		return api.Response().BadRequest("invalid action_type, must be 'B' or 'S'").Send(c)
+	}
+
+	if !req.PriceLevel.Valid() {
+		return api.Response().BadRequest("invalid price_level. Valid: bid01, bid02, bid03, ask01, ask02, ask03, mid, ceil, floor").Send(c)
 	}
 
 	if req.CredentialID == "" {
@@ -142,8 +146,12 @@ func BasketExecute(c *fiber.Ctx) error {
 			continue
 		}
 
-		// Get price from latest message based on price_level
-		orderPrice := controller.GetPriceByLevel(infoItem.Symbol, req.PriceLevel)
+		// Get price from database based on price_level
+		orderPrice, err := utils.GetPriceByLevel(infoItem.Symbol, req.PriceLevel)
+		if err != nil {
+			log.Error().Err(err).Msgf("Error getting price for symbol %s at price_level %s", infoItem.Symbol, req.PriceLevel)
+			continue
+		}
 		if orderPrice <= 0 {
 			log.Warn().Msgf("No price available for symbol %s at price_level %s", infoItem.Symbol, req.PriceLevel)
 			continue

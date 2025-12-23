@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/vn-fin/oms/pkg/controller"
+	"github.com/vn-fin/oms/internal/utils"
 )
 
 // GetPriceInfo returns bid1-3, ask1-3, mid, ceil, floor price for a symbol
@@ -25,10 +25,17 @@ func GetPriceInfo(c *fiber.Ctx) error {
 
 	priceLevel := strings.ToLower(c.Query("price_level"))
 
-	priceInfo := controller.GetPriceInfo(symbol)
+	priceInfo, err := utils.GetPriceInfo(symbol)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error":  "error fetching price data",
+			"symbol": symbol,
+			"detail": err.Error(),
+		})
+	}
 	if priceInfo == nil {
 		return c.Status(404).JSON(fiber.Map{
-			"error":  "no orderbook data for this symbol",
+			"error":  "no price data for this symbol",
 			"symbol": symbol,
 		})
 	}
