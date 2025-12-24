@@ -13,7 +13,7 @@ import (
 // @Tags market
 // @Param symbol path string true "Stock symbol"
 // @Param price_level query string false "Price level: bid1, bid2, bid3, ask1, ask2, ask3, mid, ceil, floor (empty = all)"
-// @Success 200 {object} controller.PriceInfo
+// @Success 200 {object} models.PriceInfo
 // @Router /oms/v1/market/price/{symbol} [get]
 func GetPriceInfo(c *fiber.Ctx) error {
 	symbol := c.Params("symbol")
