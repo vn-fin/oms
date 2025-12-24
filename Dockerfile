@@ -17,7 +17,7 @@ COPY . .
 RUN $(go env GOPATH)/bin/swag init -g cmd/main.go
 
 # Build static binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app ./cmd/main.go
+RUN go build -o app ./cmd/main.go
 
 # ---- Run stage ----
 FROM alpine:3.20

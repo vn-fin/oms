@@ -1,0 +1,49 @@
+version: "3.8"
+
+x-common-setup: &common-setup
+  image: ${root}
+  environment:
+    TZ: Asia/Ho_Chi_Minh
+    # Database configuration
+    POSTGRES_HOST: ${POSTGRES_HOST}
+    POSTGRES_PORT: ${POSTGRES_PORT}
+    POSTGRES_USER: ${POSTGRES_USER}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    POSTGRES_DB: xno_execution
+    # Redis configuration
+    REDIS_HOST: ${REDIS_HOST}
+    REDIS_PORT: ${REDIS_PORT}
+    REDIS_DB: 11  # Cache DB
+    REDIS_USER: ${REDIS_USER}
+    REDIS_PASSWORD: ${REDIS_PASSWORD}
+    # Permission Service
+    PERMISSION_GRPC_HOST: ${PERMISSION_GRPC_HOST}
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+  networks:
+    - swarm-net
+  deploy:
+    mode: global
+    restart_policy:
+      condition: any
+    placement:
+      constraints:
+        - node.role == worker
+        - node.labels.type != infra
+
+services:
+  oms_service:
+    <<: *common-setup
+    expose:
+      - "3000"
+    entrypoint: ["./app"]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.oms_service.rule=PathPrefix(`/oms`)"
+      - "traefik.http.routers.oms_service.entrypoints=web"
+      - "traefik.http.services.oms_service.loadbalancer.server.port=3000"
+
+
+networks:
+  swarm-net:
+    external: true
