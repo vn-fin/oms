@@ -9,7 +9,7 @@ import (
 	"github.com/vn-fin/oms/internal/db"
 	"github.com/vn-fin/oms/internal/models"
 	"github.com/vn-fin/oms/internal/typing"
-	"github.com/vn-fin/oms/pkg/controller"
+	"github.com/vn-fin/oms/internal/utils"
 )
 
 // UserOrderUpdatePrice updates the order_price based on price_level from orderbook
@@ -59,8 +59,11 @@ func UserOrderUpdatePrice(c *fiber.Ctx) error {
 		return api.Response().NotFound("order not found").Send(c)
 	}
 
-	// Get price from latest message based on price_level
-	newPrice := controller.GetPriceByLevel(order.Symbol, priceLevel)
+	// Get price from database based on price_level
+	newPrice, err := utils.GetPriceByLevel(order.Symbol, priceLevel)
+	if err != nil {
+		return api.Response().InternalError(err).Send(c)
+	}
 	if newPrice <= 0 {
 		return api.Response().BadRequest("price not available for " + string(priceLevel)).Send(c)
 	}
