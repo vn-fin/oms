@@ -57,7 +57,7 @@ func BasketCreate(c *fiber.Ctx) error {
 	var availableGroupID string
 	findAvailableGroupQuery := `
         SELECT cg.id 
-        FROM execution.credential_groups cg 
+        FROM users.credential_groups cg 
         LEFT JOIN execution.baskets b ON cg.id = b.group_id 
         WHERE cg.status = ? AND cg.user_id = ? AND b.id IS NULL
         ORDER BY cg.created_at ASC
@@ -66,7 +66,7 @@ func BasketCreate(c *fiber.Ctx) error {
 	_, err := db.Postgres.QueryOne(
 		pg.Scan(&availableGroupID),
 		findAvailableGroupQuery,
-		typing.RecordStatusEnabled,
+		typing.StatusActive,
 		userID,
 	)
 	if err != nil {
