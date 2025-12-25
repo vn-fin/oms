@@ -24,6 +24,7 @@ func SetupRoutes(app *fiber.App) {
 
 		// baskets
 		api.Get("/baskets", authMiddleware, handlers.BasketList)
+		api.Get("/baskets/user", authMiddleware, handlers.BasketListByUserID)
 		api.Post("/baskets", authMiddleware, handlers.BasketCreate)
 
 		// basket execute sessions (must be before /baskets/:id to avoid route conflict)

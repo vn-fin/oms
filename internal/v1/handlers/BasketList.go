@@ -46,3 +46,44 @@ func BasketList(c *fiber.Ctx) error {
 		Message("Baskets retrieved successfully").
 		Send(c)
 }
+
+// BasketListByUserID gets all baskets by user ID
+// @Summary Get all baskets by user ID
+// @Description Get all baskets by user ID from database
+// @Tags Basket
+// @Produce json
+// @Success 200 {object} models.DefaultResponseModel
+// @Failure 401 {object} models.DefaultResponseModel
+// @Failure 500 {object} models.DefaultResponseModel
+// @Security BearerAuth
+// @Router /oms/v1/baskets/user [get]
+func BasketListByUserID(c *fiber.Ctx) error {
+	// Get userID from context (set by AuthMiddleware)
+	userID := api.GetUserID(c)
+	if userID == "" {
+		return api.Response().Unauthorized("user not authenticated").Send(c)
+	}
+
+	// Query all baskets
+	var baskets []models.Basket
+	query := `
+		SELECT id, name, description, info, hedge_config, created_by, updated_by, created_at, updated_at, status
+		FROM execution.baskets
+		WHERE created_by = ?
+		ORDER BY created_at DESC
+	`
+	_, err := db.Postgres.Query(&baskets, query, userID)
+	if err != nil {
+		return api.Response().InternalError(err).Send(c)
+	}
+
+	// Return empty array if no baskets found
+	if baskets == nil {
+		baskets = []models.Basket{}
+	}
+
+	return api.Response().
+		Data(baskets).
+		Message("Baskets retrieved successfully").
+		Send(c)
+}

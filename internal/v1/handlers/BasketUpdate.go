@@ -20,7 +20,7 @@ type BasketUpdateRequest struct {
 // BasketUpdate
 // @Summary Update basket
 // @Description Update an existing basket. All fields are optional, only provided fields will be updated.
-// @Tags basket
+// @Tags Basket
 // @Accept json
 // @Produce json
 // @Param id path string true "Basket ID"
