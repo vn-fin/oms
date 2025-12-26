@@ -45,10 +45,10 @@ func BasketCreate(c *fiber.Ctx) error {
 		return api.Response().BadRequest("name is required").Send(c)
 	}
 
-	// Info is required
-	if req.Info == nil || len(req.Info) == 0 {
-		return api.Response().BadRequest("info is required").Send(c)
-	}
+	// // Info is required
+	// if req.Info == nil || len(req.Info) == 0 {
+	// 	return api.Response().BadRequest("info is required").Send(c)
+	// }
 
 	// Get userID from context (set by AuthMiddleware)
 	userID := api.GetUserID(c)

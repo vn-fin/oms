@@ -8,11 +8,11 @@ import (
 
 // BasketExecuteRequest represents the request body for executing a basket
 type BasketExecuteRequest struct {
-	CredentialID string            `json:"credential_id"`
-	PriceLevel   typing.PriceLevel `json:"price_level"`
-	ActionType   typing.ActionType `json:"action_type"`
-	Weight       float64           `json:"weight"`
-	FutureSize   float64           `json:"future_size"`
+	// CredentialID string            `json:"credential_id"`
+	PriceLevel typing.PriceLevel `json:"price_level"`
+	ActionType typing.ActionType `json:"action_type"`
+	Weight     float64           `json:"weight"`
+	FutureSize float64           `json:"future_size"`
 }
 
 // BasketExecuteSession represents a record in execution.basket_execute_sessions table

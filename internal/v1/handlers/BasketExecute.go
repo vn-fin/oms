@@ -16,6 +16,27 @@ import (
 	"github.com/vn-fin/oms/internal/utils"
 )
 
+func getCredentialID(c *fiber.Ctx, EstimatedCash float64) string {
+	userID := api.GetUserID(c)
+	if userID == "" {
+		return ""
+	}
+
+	query := `
+		SELECT id
+		FROM users.login_credentials
+		WHERE user_id = ? AND free_cash >= ?
+		limit 1
+	`
+	var credentialID string
+	_, err := db.Postgres.Query(&credentialID, query, userID, EstimatedCash)
+	if err != nil {
+		log.Error().Err(err).Msgf("Error getting credential_id for user %s with estimated cash %f", userID, EstimatedCash)
+		return ""
+	}
+	return credentialID
+}
+
 // BasketExecute
 // @Summary Execute basket
 // @Description Execute a basket with specified parameters
@@ -49,9 +70,9 @@ func BasketExecute(c *fiber.Ctx) error {
 		return api.Response().BadRequest("invalid price_level. Valid: bid01, bid02, bid03, ask01, ask02, ask03, mid, ceil, floor").Send(c)
 	}
 
-	if req.CredentialID == "" {
-		return api.Response().BadRequest("credential_id is required").Send(c)
-	}
+	// if req.CredentialID == "" {
+	// 	return api.Response().BadRequest("credential_id is required").Send(c)
+	// }
 
 	userID := api.GetUserID(c)
 	now := time.Now().UTC()
@@ -97,7 +118,7 @@ func BasketExecute(c *fiber.Ctx) error {
 		PriceLevel:    req.PriceLevel,
 		ActionType:    req.ActionType,
 		FutureSize:    req.FutureSize,
-		EstimatedCash: 100000000, //Gia su :v (chua tinh)
+		EstimatedCash: 10000, //Gia su :v (chua tinh)
 		MatchedCash:   0,
 		OrderStatus:   typing.OrderStatusCreated,
 		CreatedBy:     userID,
@@ -164,7 +185,7 @@ func BasketExecute(c *fiber.Ctx) error {
 
 		userOrder := models.UserOrder{
 			ID:           uuid.NewString(),
-			CredentialID: req.CredentialID,
+			CredentialID: getCredentialID(c, estimatedCash),
 			SessionID:    session.ID,
 			Symbol:       infoItem.Symbol,
 			SymbolType:   "VnStock",
